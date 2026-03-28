@@ -6,6 +6,8 @@ import type { Product } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useI18n } from "@/lib/i18n/context";
+import { useAuth } from "@/lib/auth/context";
+import { isMarketplaceBuyer } from "@/lib/auth/shared";
 import { useCart } from "@/lib/cart/context";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -14,7 +16,9 @@ type Props = { product: Product; index?: number };
 
 export function ProductCard({ product, index = 0 }: Props) {
   const { t } = useI18n();
+  const { user } = useAuth();
   const { addItem } = useCart();
+  const canShop = isMarketplaceBuyer(user);
   const shop = product.shop;
   const img = product.images[0];
   const low = product.stock > 0 && product.stock <= 5;
@@ -61,13 +65,19 @@ export function ProductCard({ product, index = 0 }: Props) {
         </p>
         <Button
           className="mt-auto w-full bg-[#4F46E5] hover:bg-[#4338CA]"
-          disabled={out}
+          disabled={out || !canShop}
           onClick={() => {
             addItem(product, 1);
-            toast.success("Added to cart");
+            if (canShop) {
+              toast.success("Added to cart");
+            }
           }}
         >
-          {t("addToCart")}
+          {!user
+            ? "Sign in to buy"
+            : !canShop
+              ? "Buyers only"
+              : t("addToCart")}
         </Button>
       </div>
     </motion.article>

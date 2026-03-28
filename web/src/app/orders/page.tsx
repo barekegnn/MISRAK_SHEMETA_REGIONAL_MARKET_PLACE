@@ -9,6 +9,7 @@ import {
 } from "@/components/dashboard/dashboard-ui";
 import { LinkButton } from "@/components/ui/link-button";
 import { BrowserOrdersSection } from "./browser-orders-section";
+import { PaymentProviderLogo } from "@/components/payments/payment-provider-logo";
 import { getBuyerOrders } from "@/lib/data/marketplace";
 import { getCurrentUser } from "@/lib/auth/server";
 import { getDashboardRoute } from "@/lib/auth/shared";
@@ -96,8 +97,15 @@ export default async function OrdersPage({
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="font-medium text-[#1E1B4B]">{order.id}</p>
                       {order.payment_provider ? (
-                        <Badge variant="outline">
-                          {order.payment_provider === "chapa" ? "Chapa" : "M-Pesa"}
+                        <Badge
+                          variant="outline"
+                          className="inline-flex items-center gap-1.5 border-neutral-200 py-1 pl-1.5 pr-2"
+                        >
+                          <PaymentProviderLogo
+                            provider={order.payment_provider}
+                            height={18}
+                            className="max-h-[18px]"
+                          />
                         </Badge>
                       ) : null}
                     </div>

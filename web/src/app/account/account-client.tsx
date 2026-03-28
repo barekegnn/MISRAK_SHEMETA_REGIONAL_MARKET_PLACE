@@ -1,22 +1,23 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import {
-  DashboardShell,
-  SectionCard,
-  formatLabel,
-} from "@/components/dashboard/dashboard-ui";
+import { DashboardShell, SectionCard } from "@/components/dashboard/dashboard-ui";
 import { Button } from "@/components/ui/button";
 import { LinkButton } from "@/components/ui/link-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/auth/context";
-import { getDashboardRoute, getRoleLabel } from "@/lib/auth/shared";
+import { getDashboardRoute } from "@/lib/auth/shared";
 import type { DeliveryZone, Language, User } from "@/types";
 import { DELIVERY_ZONES } from "@/lib/constants";
 import { useI18n } from "@/lib/i18n/context";
+import {
+  translateDeliveryZone,
+  translateRole,
+} from "@/lib/i18n/labels";
 
 type Props = { user: User };
 
@@ -27,9 +28,8 @@ export function AccountClient({ user: initialUser }: Props) {
 
   const u = user ?? initialUser;
   const dashboardHref = getDashboardRoute(u.role);
-  const zoneLabel =
-    DELIVERY_ZONES.find((z) => z.value === (deliveryZone ?? u.delivery_zone))?.label ??
-    formatLabel(deliveryZone ?? u.delivery_zone);
+  const zoneValue = deliveryZone ?? u.delivery_zone ?? "Haramaya_Campus";
+  const zoneLabel = translateDeliveryZone(zoneValue, t);
   const [fullName, setFullName] = useState(u.full_name ?? "");
   const [phone, setPhone] = useState(u.phone ?? "");
   const [selectedZone, setSelectedZone] = useState<DeliveryZone>(
@@ -37,6 +37,12 @@ export function AccountClient({ user: initialUser }: Props) {
   );
   const [selectedLanguage, setSelectedLanguage] = useState<Language>(profileLanguage);
   const [saving, setSaving] = useState(false);
+
+  async function handleSignOut() {
+    await signOut();
+    router.push("/");
+    router.refresh();
+  }
 
   async function saveProfile() {
     setSaving(true);
@@ -54,16 +60,16 @@ export function AccountClient({ user: initialUser }: Props) {
       const payload = (await response.json()) as { message?: string; error?: string };
 
       if (!response.ok) {
-        throw new Error(payload.error ?? "Unable to save account settings.");
+        throw new Error(payload.error ?? t("account_toast_error"));
       }
 
       setLang(selectedLanguage);
       await refresh();
       router.refresh();
-      toast.success(payload.message ?? "Account settings saved.");
+      toast.success(payload.message ?? t("account_toast_saved"));
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Unable to save account settings.",
+        error instanceof Error ? error.message : t("account_toast_error"),
       );
     } finally {
       setSaving(false);
@@ -72,9 +78,9 @@ export function AccountClient({ user: initialUser }: Props) {
 
   return (
     <DashboardShell
-      eyebrow="Personal settings"
-      title="Account"
-      description="Review your profile, keep delivery preferences in sync, and jump back into your role workspace."
+      eyebrow={t("account_eyebrow")}
+      title={t("account_title")}
+      description={t("account_description")}
       actions={
         <>
           {u.role === "buyer" ? (
@@ -82,26 +88,55 @@ export function AccountClient({ user: initialUser }: Props) {
               {t("orders")}
             </LinkButton>
           ) : null}
-          <LinkButton href={dashboardHref} variant="outline">
-            Open dashboard
+          <LinkButton href="/" variant="outline">
+            {t("account_marketplace")}
           </LinkButton>
+          <LinkButton href={dashboardHref} variant="outline">
+            {t("account_openDashboard")}
+          </LinkButton>
+          <Button
+            type="button"
+            variant="outline"
+            className="border-red-200 text-red-700 hover:bg-red-50"
+            onClick={() => void handleSignOut()}
+          >
+            {t("signOut")}
+          </Button>
         </>
       }
     >
       <div className="grid gap-6 xl:grid-cols-[1.1fr_minmax(0,0.9fr)]">
         <SectionCard
-          title="Profile summary"
-          description="The current signed-in account details, role, and joined date."
+          title={t("account_profileSummary")}
+          description={t("account_profileSummaryDesc")}
         >
           <div className="grid gap-4 sm:grid-cols-2">
-            <InfoBlock label="Name" value={u.full_name ?? "Not set yet"} />
-            <InfoBlock label="Email" value={u.email} />
-            <InfoBlock label="Role" value={getRoleLabel(u.role)} />
-            <InfoBlock label="Phone" value={u.phone ?? "Not set yet"} />
-            <InfoBlock label="Delivery zone" value={zoneLabel} />
-            <InfoBlock label="Language" value={profileLanguage.toUpperCase()} />
             <InfoBlock
-              label="Member since"
+              label={t("account_label_name")}
+              value={u.full_name ?? t("account_notSet")}
+            />
+            <InfoBlock label={t("account_label_email")} value={u.email} />
+            <InfoBlock
+              label={t("account_label_role")}
+              value={translateRole(u.role, t)}
+            />
+            <InfoBlock
+              label={t("account_label_phone")}
+              value={u.phone ?? t("account_notSet")}
+            />
+            <InfoBlock label={t("account_label_zone")} value={zoneLabel} />
+            <InfoBlock
+              label={t("account_label_language")}
+              value={
+                profileLanguage === "en"
+                  ? t("auth_lang_en")
+                  : profileLanguage === "am"
+                    ? t("auth_lang_am")
+                    : t("auth_lang_om")
+              }
+            />
+            <InfoBlock
+              label={t("account_label_memberSince")}
               value={new Date(u.created_at).toLocaleDateString(undefined, {
                 dateStyle: "medium",
               })}
@@ -110,17 +145,17 @@ export function AccountClient({ user: initialUser }: Props) {
         </SectionCard>
 
         <SectionCard
-          title="Update account settings"
-          description="Save the settings that should follow this signed-in account across checkout, dashboards, and fulfillment."
+          title={t("account_updateTitle")}
+          description={t("account_updateDesc")}
           action={
             <Button type="button" onClick={() => void saveProfile()} disabled={saving}>
-              {saving ? "Saving..." : "Save changes"}
+              {saving ? t("account_saving") : t("account_saveChanges")}
             </Button>
           }
         >
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="account-full-name">Full name</Label>
+              <Label htmlFor="account-full-name">{t("account_fullName")}</Label>
               <Input
                 id="account-full-name"
                 value={fullName}
@@ -130,7 +165,7 @@ export function AccountClient({ user: initialUser }: Props) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="account-phone">Phone</Label>
+              <Label htmlFor="account-phone">{t("account_label_phone")}</Label>
               <Input
                 id="account-phone"
                 value={phone}
@@ -140,7 +175,7 @@ export function AccountClient({ user: initialUser }: Props) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="account-zone">Delivery zone</Label>
+              <Label htmlFor="account-zone">{t("account_label_zone")}</Label>
               <select
                 id="account-zone"
                 className="flex h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -149,39 +184,56 @@ export function AccountClient({ user: initialUser }: Props) {
               >
                 {DELIVERY_ZONES.map((zone) => (
                   <option key={zone.value} value={zone.value}>
-                    {zone.label}
+                    {translateDeliveryZone(zone.value, t)}
                   </option>
                 ))}
               </select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="account-language">Language</Label>
+              <Label htmlFor="account-language">{t("account_label_language")}</Label>
               <select
                 id="account-language"
                 className="flex h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 value={selectedLanguage}
                 onChange={(event) => setSelectedLanguage(event.target.value as Language)}
               >
-                <option value="en">English</option>
-                <option value="am">Amharic</option>
-                <option value="om">Afaan Oromo</option>
+                <option value="en">{t("auth_lang_en")}</option>
+                <option value="am">{t("auth_lang_am")}</option>
+                <option value="om">{t("auth_lang_om")}</option>
               </select>
             </div>
 
-            <div className="flex flex-col gap-3 pt-2">
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full"
-                onClick={() => void signOut()}
+            <p className="text-xs text-neutral-500">
+              {t("account_passwordHintPrefix")}{" "}
+              <Link
+                href="/auth"
+                className="font-medium text-[#4F46E5] underline underline-offset-2 hover:text-[#4338CA]"
               >
-                {t("signOut")}
-              </Button>
-            </div>
+                {t("signIn")}
+              </Link>{" "}
+              {t("account_passwordHintSuffix")}
+            </p>
           </div>
         </SectionCard>
       </div>
+
+      <SectionCard
+        title={t("account_sessionTitle")}
+        description={t("account_sessionDesc")}
+        action={
+          <Button
+            type="button"
+            variant="outline"
+            className="border-red-200 text-red-700 hover:bg-red-50"
+            onClick={() => void handleSignOut()}
+          >
+            {t("signOut")}
+          </Button>
+        }
+      >
+        <p className="text-sm text-neutral-600">{t("account_sessionBody")}</p>
+      </SectionCard>
     </DashboardShell>
   );
 }

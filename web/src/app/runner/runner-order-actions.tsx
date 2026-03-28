@@ -35,6 +35,10 @@ export function RunnerOrderActions({ orderId, status, canClaim, isAssigned }: Pr
 
       toast.success(payload.message ?? "Delivery updated.");
       setOtp("");
+      if (action === "runner_complete") {
+        router.push(`/runner/delivered/${orderId}`);
+        return;
+      }
       router.refresh();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Unable to update delivery.");

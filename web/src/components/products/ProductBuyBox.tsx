@@ -8,6 +8,8 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useI18n } from "@/lib/i18n/context";
+import { useAuth } from "@/lib/auth/context";
+import { isMarketplaceBuyer } from "@/lib/auth/shared";
 import { useCart } from "@/lib/cart/context";
 import { Phone, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
@@ -20,7 +22,9 @@ type Props = {
 
 export function ProductBuyBox({ product, deliveryZone }: Props) {
   const { t } = useI18n();
+  const { user } = useAuth();
   const { addItem } = useCart();
+  const canShop = isMarketplaceBuyer(user);
   const [qty, setQty] = useState(1);
   const shop = product.shop;
   const route = calculateDeliveryFee(shop?.city ?? "Harar", deliveryZone);
@@ -94,13 +98,19 @@ export function ProductBuyBox({ product, deliveryZone }: Props) {
 
       <Button
         className="mt-4 w-full bg-amber-500 text-base font-semibold text-neutral-900 hover:bg-amber-400"
-        disabled={out}
+        disabled={out || !canShop}
         onClick={() => {
           addItem(product, qty);
-          toast.success(`${qty} added to cart`);
+          if (canShop) {
+            toast.success(`${qty} added to cart`);
+          }
         }}
       >
-        {t("addToCart")}
+        {!user
+          ? "Sign in to buy"
+          : !canShop
+            ? "Buyers only"
+            : t("addToCart")}
       </Button>
 
       <a

@@ -12,5 +12,9 @@ export default async function AccountLayout({
     return children;
   }
 
+  if (user.role === "buyer") {
+    return children;
+  }
+
   return <RoleDashboardLayout role={user.role}>{children}</RoleDashboardLayout>;
 }

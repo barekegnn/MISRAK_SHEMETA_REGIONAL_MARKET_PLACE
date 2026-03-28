@@ -16,9 +16,10 @@ import {
 import { requireRole } from "@/lib/auth/server";
 import { ResetDemoButton } from "./reset-demo-button";
 import { AdminOrderControls } from "./admin-order-controls";
+import { AdminUserDirectory } from "./admin-user-directory";
 
 export default async function AdminPage() {
-  await requireRole(["admin"]);
+  const adminUser = await requireRole(["admin"]);
   const [data, runners] = await Promise.all([getAdminDashboardData(), getRunnerDirectory()]);
   const adminOrderWindow = data.orders.slice(0, 5);
   const orderItemsByOrderId = await getOrderItemsByOrderIds(
@@ -222,8 +223,8 @@ export default async function AdminPage() {
       </div>
 
       <SectionCard
-        title="Role diagnostics"
-        description="Quick read on which account types are present and who is currently participating in the platform."
+        title="Users & roles"
+        description="Assign buyer, seller, runner, or admin roles and delivery zones. Changes sync to sign-in metadata when the service key is configured."
       >
         {data.users.length ? (
           <div className="grid gap-4 lg:grid-cols-[18rem_minmax(0,1fr)]">
@@ -250,24 +251,7 @@ export default async function AdminPage() {
               />
             </div>
 
-            <div className="space-y-3">
-              {data.users.slice(0, 8).map((user) => (
-                <div
-                  key={user.id}
-                  className="flex flex-col gap-3 rounded-xl border border-neutral-200 p-4 md:flex-row md:items-center md:justify-between"
-                >
-                  <div>
-                    <p className="font-medium text-[#1E1B4B]">
-                      {user.full_name ?? user.email}
-                    </p>
-                    <p className="mt-1 text-sm text-neutral-600">{user.email}</p>
-                  </div>
-                  <div className="text-sm text-neutral-500">
-                    {user.role} · {formatLabel(user.delivery_zone, "No zone")}
-                  </div>
-                </div>
-              ))}
-            </div>
+            <AdminUserDirectory users={data.users} currentAdminId={adminUser.id} />
           </div>
         ) : (
           <EmptyStateCard

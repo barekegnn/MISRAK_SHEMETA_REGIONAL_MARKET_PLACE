@@ -1,3 +1,5 @@
+import "server-only";
+
 import { createClient } from "@supabase/supabase-js";
 
 /** Bypass RLS — server-only (callbacks, admin ops, seed). */

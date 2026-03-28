@@ -4,6 +4,10 @@ import type { DeliveryZone, Language, User, UserRole } from "@/types";
 export const DEFAULT_DELIVERY_ZONE: DeliveryZone = "Haramaya_Campus";
 export const DEFAULT_LANGUAGE: Language = "en";
 
+export function isMarketplaceBuyer(user: User | null): boolean {
+  return Boolean(user && user.role === "buyer");
+}
+
 export function mapSupabaseUser(su: SupabaseUser): User {
   return {
     id: su.id,
@@ -60,15 +64,15 @@ export function getWorkspaceNavItems(role: UserRole): WorkspaceNavItem[] {
       return [{ href: "/admin", label: "Overview" }];
     case "seller":
       return [
-        { href: "/merchant", label: "Overview" },
-        { href: "/merchant/orders", label: "Orders" },
+        { href: "/merchant", label: "Dashboard" },
         { href: "/merchant/products", label: "Products" },
+        { href: "/merchant/orders", label: "Orders" },
         { href: "/merchant/products/new", label: "New product" },
         { href: "/account", label: "Account" },
       ];
     case "runner":
       return [
-        { href: "/runner", label: "Queue" },
+        { href: "/runner", label: "Orders & deliveries" },
         { href: "/account", label: "Account" },
       ];
     case "buyer":

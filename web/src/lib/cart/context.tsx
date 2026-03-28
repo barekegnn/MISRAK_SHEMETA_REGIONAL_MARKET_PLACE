@@ -11,7 +11,9 @@ import {
 } from "react";
 import type { CartItem, Product } from "@/types";
 import { useAuth } from "@/lib/auth/context";
+import { isMarketplaceBuyer } from "@/lib/auth/shared";
 import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
 import {
   CART_OWNER_STORAGE_KEY,
   CART_STORAGE_KEY,
@@ -42,9 +44,9 @@ type CartContextValue = {
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const { supabaseUser } = useAuth();
+  const { user, supabaseUser } = useAuth();
   const accountSyncAvailable = createClient() !== null;
-  const [items, setItems] = useState<CartItem[]>(() => readStoredCartItems());
+  const [items, setItems] = useState<CartItem[]>([]);
   const [mode, setMode] = useState<CartMode>("guest");
   const [isHydrating, setIsHydrating] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -97,6 +99,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   );
 
   useEffect(() => {
+    if (!isMarketplaceBuyer(user)) {
+      return;
+    }
+
     const owner = mode === "account" && supabaseUser ? supabaseUser.id : "guest";
 
     if (skipNextStorageWriteRef.current) {
@@ -105,7 +111,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
 
     writeStoredCartItems(items, owner);
-  }, [items, mode, supabaseUser]);
+  }, [items, mode, supabaseUser, user]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -118,6 +124,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
+      if (!isMarketplaceBuyer(user)) {
+        return;
+      }
+
       skipNextStorageWriteRef.current = true;
       skipNextAccountSyncRef.current = true;
       setItems(readStoredCartItems());
@@ -125,7 +135,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     if (!supabaseUser || !accountSyncAvailable) {
@@ -140,12 +150,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    if (!isMarketplaceBuyer(user)) {
+      accountCartReadyRef.current = false;
+      setMode("guest");
+      setIsHydrating(false);
+      setItems([]);
+      setSyncError(null);
+      return;
+    }
+
     const owner = readStoredCartOwner();
     const guestItems = readStoredCartItems();
     const mergeGuestItems = owner === "guest" ? guestItems : [];
 
     void loadAccountCart({ mergeGuestItems });
-  }, [accountSyncAvailable, loadAccountCart, supabaseUser]);
+  }, [accountSyncAvailable, loadAccountCart, supabaseUser, user]);
 
   useEffect(() => {
     if (
@@ -212,6 +231,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [accountSyncAvailable, items, mode, supabaseUser]);
 
   const addItem = useCallback((product: Product, qty = 1) => {
+    if (!user) {
+      toast.error("Sign in to add items to your cart.");
+      return;
+    }
+    if (!isMarketplaceBuyer(user)) {
+      toast.error("Only buyer accounts can shop. Sellers use the merchant dashboard.");
+      return;
+    }
+
     setItems((prev) => {
       const i = prev.findIndex((x) => x.product_id === product.id);
       if (i >= 0) {
@@ -234,9 +262,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         },
       ]);
     });
-  }, []);
+  }, [user]);
 
   const updateQty = useCallback((productId: string, qty: number) => {
+    if (!user || !isMarketplaceBuyer(user)) {
+      toast.error(
+        user
+          ? "Only buyer accounts can change the cart."
+          : "Sign in to update your cart.",
+      );
+      return;
+    }
+
     if (qty < 1) {
       setItems((prev) => prev.filter((x) => x.product_id !== productId));
       return;
@@ -244,18 +281,27 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setItems((prev) => sanitizeCartItems(
       prev.map((x) => (x.product_id === productId ? { ...x, quantity: qty } : x)),
     ));
-  }, []);
+  }, [user]);
 
   const removeItem = useCallback((productId: string) => {
+    if (!user || !isMarketplaceBuyer(user)) {
+      toast.error(
+        user
+          ? "Only buyer accounts can change the cart."
+          : "Sign in to update your cart.",
+      );
+      return;
+    }
+
     setItems((prev) => prev.filter((x) => x.product_id !== productId));
-  }, []);
+  }, [user]);
 
   const clear = useCallback(() => setItems([]), []);
 
   const refresh = useCallback(async () => {
-    if (!supabaseUser || !accountSyncAvailable) return;
+    if (!supabaseUser || !accountSyncAvailable || !isMarketplaceBuyer(user)) return;
     await loadAccountCart();
-  }, [accountSyncAvailable, loadAccountCart, supabaseUser]);
+  }, [accountSyncAvailable, loadAccountCart, supabaseUser, user]);
 
   const subtotal = useMemo(
     () =>

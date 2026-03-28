@@ -674,6 +674,47 @@ export async function getRunnerDirectory() {
   return users.filter((user) => user.role === "runner");
 }
 
+export async function getRunnerOrderDetail(
+  orderId: string,
+  userId: string,
+  deliveryZone: DeliveryZone | null,
+) {
+  const orders = await getOrders();
+  const order = orders.find((candidate) => candidate.id === orderId) ?? null;
+  if (!order) {
+    return null;
+  }
+
+  const inZoneQueue =
+    order.runner_id == null &&
+    order.status === "DISPATCHED" &&
+    deliveryZone != null &&
+    order.delivery_zone === deliveryZone;
+  const assignedToMe = order.runner_id === userId;
+
+  if (!inZoneQueue && !assignedToMe) {
+    return null;
+  }
+
+  const [itemsByOrderId, shops] = await Promise.all([
+    getOrderItemsByOrderIds([orderId]),
+    getShops(),
+  ]);
+
+  const items = itemsByOrderId[orderId] ?? [];
+  const shopId = order.shop_id ?? items[0]?.shop_id ?? null;
+  const shop = shopId ? shops.find((candidate) => candidate.id === shopId) ?? null : null;
+  const routeEta =
+    shop && order.delivery_zone ? calculateDeliveryFee(shop.city, order.delivery_zone) : null;
+
+  return {
+    order,
+    items,
+    shop,
+    routeEta,
+  };
+}
+
 function normalizePaymentProvider(value: unknown): PaymentProvider | null {
   return value === "chapa" || value === "mpesa" ? value : null;
 }

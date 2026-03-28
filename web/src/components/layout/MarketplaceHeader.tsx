@@ -18,7 +18,11 @@ import { useCart } from "@/lib/cart/context";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { PRODUCT_CATEGORIES } from "@/lib/constants";
 import type { ProductCategory } from "@/types";
-import { getDashboardRoute, getRoleLabel } from "@/lib/auth/shared";
+import { getDashboardRoute } from "@/lib/auth/shared";
+import {
+  translateProductCategory,
+  translateRole,
+} from "@/lib/i18n/labels";
 
 export function MarketplaceHeader({
   initialQuery = "",
@@ -69,12 +73,15 @@ export function MarketplaceHeader({
         >
           <DropdownMenu>
             <DropdownMenuTrigger className="hidden h-10 shrink-0 items-center justify-center rounded-l-lg rounded-r-none border border-input bg-background px-3 text-sm font-medium outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring md:inline-flex">
-              {category}
+              {translateProductCategory(category, t)}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="max-h-72 overflow-y-auto">
+              <DropdownMenuItem key="all" onClick={() => setCategory("All")}>
+                {translateProductCategory("All", t)}
+              </DropdownMenuItem>
               {PRODUCT_CATEGORIES.filter((c) => c !== "All").map((c) => (
                 <DropdownMenuItem key={c} onClick={() => setCategory(c)}>
-                  {c}
+                  {translateProductCategory(c, t)}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
@@ -103,22 +110,32 @@ export function MarketplaceHeader({
           <DropdownMenu>
             <DropdownMenuTrigger className="flex h-auto flex-col items-start rounded-md px-2 py-1 text-xs leading-tight outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring">
               <span className="text-neutral-500">
-                {user ? `Hello, ${firstName}` : t("account")}
+                {user
+                  ? t("helloUser", { name: String(firstName ?? "") })
+                  : t("account")}
               </span>
               <span className="font-semibold text-[#1E1B4B]">
-                {user ? getRoleLabel(user.role) : t("signIn")}
+                {user ? translateRole(user.role, t) : t("signIn")}
               </span>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               {user ? (
                 <>
                   <DropdownMenuItem onClick={() => router.push(accountHref)}>
-                    Account
+                    {t("account")}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => router.push(dashboardHref)}>
-                    Dashboard
+                    {t("menu_dashboard")}
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => void signOut()}>
+                  <DropdownMenuItem
+                    onClick={() =>
+                      void (async () => {
+                        await signOut();
+                        router.push("/");
+                        router.refresh();
+                      })()
+                    }
+                  >
                     {t("signOut")}
                   </DropdownMenuItem>
                 </>

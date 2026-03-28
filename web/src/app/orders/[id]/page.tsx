@@ -10,6 +10,7 @@ import {
 import { getBuyerOrderById, getBuyerOrderItems } from "@/lib/data/marketplace";
 import { getCurrentUser } from "@/lib/auth/server";
 import { getDashboardRoute } from "@/lib/auth/shared";
+import { PaymentProviderLogo } from "@/components/payments/payment-provider-logo";
 import { DemoOrderDetail } from "./demo-order-detail";
 
 export default async function OrderDetailPage({
@@ -52,8 +53,15 @@ export default async function OrderDetailPage({
         <div className="flex flex-wrap items-center gap-3">
           <OrderStatusBadge status={order.status} />
           {order.payment_provider ? (
-            <Badge variant="outline">
-              {order.payment_provider === "chapa" ? "Chapa" : "M-Pesa"}
+            <Badge
+              variant="outline"
+              className="inline-flex items-center gap-1.5 border-neutral-200 py-1 pl-1.5 pr-2"
+            >
+              <PaymentProviderLogo
+                provider={order.payment_provider}
+                height={20}
+                className="max-h-5"
+              />
             </Badge>
           ) : null}
           <p className="text-sm text-neutral-600">
@@ -71,13 +79,13 @@ export default async function OrderDetailPage({
           <p className="text-sm text-neutral-600">
             Delivery fee: {order.delivery_fee.toLocaleString()} ETB
           </p>
-          <p className="text-sm text-neutral-600">
-            Payment provider:{" "}
-            {order.payment_provider === "chapa"
-              ? "Chapa"
-              : order.payment_provider === "mpesa"
-                ? "M-Pesa"
-                : "Not recorded"}
+          <p className="flex flex-wrap items-center gap-2 text-sm text-neutral-600">
+            <span>Payment provider:</span>
+            {order.payment_provider === "chapa" || order.payment_provider === "mpesa" ? (
+              <PaymentProviderLogo provider={order.payment_provider} height={22} className="max-h-5" />
+            ) : (
+              <span>Not recorded</span>
+            )}
           </p>
           <p className="text-sm text-neutral-600">
             Payment reference: {order.payment_reference ?? "Not recorded"}

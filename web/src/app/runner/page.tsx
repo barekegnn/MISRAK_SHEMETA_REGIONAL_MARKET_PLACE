@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   DashboardShell,
   EmptyStateCard,
@@ -13,6 +14,7 @@ import {
   getRunnerDashboardData,
 } from "@/lib/data/marketplace";
 import { requireRole } from "@/lib/auth/server";
+import { RunnerDeliverySummary } from "./runner-delivery-summary";
 import { RunnerOrderActions } from "./runner-order-actions";
 
 export default async function RunnerPage() {
@@ -24,7 +26,7 @@ export default async function RunnerPage() {
     <DashboardShell
       eyebrow="Delivery operations"
       title="Runner dashboard"
-      description="Accept zone dispatches, confirm pickup for assigned jobs, and complete drop-offs with buyer OTP verification."
+      description="Incoming shipping orders for your zone, clear delivery locations, and OTP completion — open any job for the full pickup and drop-off screen."
       actions={
         <>
           <LinkButton href="/" variant="outline">
@@ -88,6 +90,12 @@ export default async function RunnerPage() {
                     <p className="mt-1 text-sm text-neutral-500">
                       {order.total_amount.toLocaleString()} ETB
                     </p>
+                    <Link
+                      href={`/runner/orders/${order.id}`}
+                      className="mt-2 inline-block text-sm font-medium text-[#4F46E5] hover:underline"
+                    >
+                      Open shipping order &amp; delivery location
+                    </Link>
                   </div>
                   <RunnerOrderActions
                     orderId={order.id}
@@ -96,6 +104,8 @@ export default async function RunnerPage() {
                     isAssigned={false}
                   />
                 </div>
+
+                <RunnerDeliverySummary order={order} />
 
                 {orderItemsByOrderId[order.id]?.length ? (
                   <div className="grid gap-3 border-t border-neutral-200 pt-4 md:grid-cols-2">
@@ -160,6 +170,12 @@ export default async function RunnerPage() {
                         Call customer
                       </a>
                     ) : null}
+                    <Link
+                      href={`/runner/orders/${order.id}`}
+                      className="mt-2 inline-block text-sm font-medium text-[#4F46E5] hover:underline"
+                    >
+                      Full pickup &amp; drop-off details
+                    </Link>
                   </div>
                   <RunnerOrderActions
                     orderId={order.id}
@@ -168,6 +184,8 @@ export default async function RunnerPage() {
                     isAssigned
                   />
                 </div>
+
+                <RunnerDeliverySummary order={order} />
 
                 {orderItemsByOrderId[order.id]?.length ? (
                   <div className="grid gap-3 border-t border-neutral-200 pt-4 md:grid-cols-2">
@@ -214,6 +232,12 @@ export default async function RunnerPage() {
                     {order.customer_name ?? "Customer name pending"} ·{" "}
                     {formatLabel(order.delivery_zone)}
                   </p>
+                  <Link
+                    href={`/runner/delivered/${order.id}`}
+                    className="mt-2 inline-block text-sm font-medium text-[#4F46E5] hover:underline"
+                  >
+                    View delivery confirmation
+                  </Link>
                 </div>
                 <OrderStatusBadge status={order.status} />
               </div>

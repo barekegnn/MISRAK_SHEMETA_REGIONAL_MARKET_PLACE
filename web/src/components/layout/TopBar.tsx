@@ -8,6 +8,11 @@ import { useAuth } from "@/lib/auth/context";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { DELIVERY_ZONES } from "@/lib/constants";
 import {
+  translateDeliveryZone,
+  translateShopCity,
+} from "@/lib/i18n/labels";
+import type { ShopCity } from "@/types";
+import {
   Sheet,
   SheetContent,
   SheetHeader,
@@ -22,17 +27,16 @@ export function TopBar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [zoneOpen, setZoneOpen] = useState(false);
-  const label =
-    DELIVERY_ZONES.find((z) => z.value === deliveryZone)?.label ??
-    deliveryZone;
+  const label = translateDeliveryZone(deliveryZone, t);
   const activeCity = searchParams.get("city") ?? "All";
-  const cityLinks = [
-    { label: "All Shops", value: "All", href: "/" },
-    { label: "Harar", value: "Harar", href: "/?city=Harar" },
-    { label: "Dire Dawa", value: "Dire_Dawa", href: "/?city=Dire_Dawa" },
-    { label: "Haramaya", value: "Haramaya", href: "/?city=Haramaya" },
-    { label: "Jijiga", value: "Jijiga", href: "/?city=Jijiga" },
-  ];
+  const cityLinks: { value: string; href: string; city: ShopCity | "All" }[] =
+    [
+      { value: "All", href: "/", city: "All" },
+      { value: "Harar", href: "/?city=Harar", city: "Harar" },
+      { value: "Dire_Dawa", href: "/?city=Dire_Dawa", city: "Dire_Dawa" },
+      { value: "Haramaya", href: "/?city=Haramaya", city: "Haramaya" },
+      { value: "Jijiga", href: "/?city=Jijiga", city: "Jijiga" },
+    ];
 
   return (
     <div className="bg-[#1E1B4B] text-white text-sm">
@@ -69,7 +73,7 @@ export function TopBar() {
                         setZoneOpen(false);
                       }}
                     >
-                      {z.label}
+                      {translateDeliveryZone(z.value, t)}
                     </Button>
                   ))}
                 </div>
@@ -82,21 +86,25 @@ export function TopBar() {
         </div>
 
         <div className="flex gap-1 overflow-x-auto pb-1">
-          {cityLinks.map((city) => {
+          {cityLinks.map((link) => {
             const isActive =
-              pathname === "/" && activeCity === city.value;
+              pathname === "/" && activeCity === link.value;
+            const cityLabel =
+              link.city === "All"
+                ? t("topBar_allShops")
+                : translateShopCity(link.city, t);
 
             return (
               <Link
-                key={city.value}
-                href={city.href}
+                key={link.value}
+                href={link.href}
                 className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                   isActive
                     ? "bg-white text-[#1E1B4B]"
                     : "bg-white/10 text-white hover:bg-white/20"
                 }`}
               >
-                {city.label}
+                {cityLabel}
               </Link>
             );
           })}

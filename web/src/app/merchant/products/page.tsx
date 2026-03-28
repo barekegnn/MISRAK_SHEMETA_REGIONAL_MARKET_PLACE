@@ -1,14 +1,13 @@
-import { Badge } from "@/components/ui/badge";
 import {
   DashboardShell,
-  EmptyStateCard,
   MetricCard,
   SectionCard,
 } from "@/components/dashboard/dashboard-ui";
 import { requireRole } from "@/lib/auth/server";
 import { getSellerDashboardData } from "@/lib/data/marketplace";
 import { LinkButton } from "@/components/ui/link-button";
-import { EntityToggleButton } from "@/components/dashboard/entity-toggle-button";
+import { Badge } from "@/components/ui/badge";
+import { SellerProductInventory } from "@/app/merchant/seller-product-inventory";
 
 export default async function MerchantProductsPage() {
   const user = await requireRole(["seller"]);
@@ -65,56 +64,13 @@ export default async function MerchantProductsPage() {
         title="Catalog inventory"
         description="Review pricing, stock, publication status, and jump directly into edits."
       >
-        {data.products.length ? (
-          <div className="space-y-3">
-            {data.products.map((product) => (
-              <div
-                key={product.id}
-                className="flex flex-col gap-4 rounded-xl border border-neutral-200 p-4"
-              >
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <p className="font-medium text-[#1E1B4B]">{product.name}</p>
-                    <p className="mt-1 text-sm text-neutral-600">
-                      {product.shop?.name ?? "Unassigned shop"} ·{" "}
-                      {product.price.toLocaleString()} ETB
-                    </p>
-                    <p className="mt-1 text-xs text-neutral-500">
-                      {product.category} · Stock {product.stock}
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Badge variant={product.is_active ? "secondary" : "outline"}>
-                      {product.is_active ? "Live" : "Paused"}
-                    </Badge>
-                    <Badge variant={product.stock > 5 ? "outline" : "destructive"}>
-                      Stock: {product.stock}
-                    </Badge>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-2">
-                  <LinkButton href={`/merchant/products/${product.id}`} variant="outline" size="sm">
-                    Edit details
-                  </LinkButton>
-                  <EntityToggleButton
-                    endpoint={`/api/dashboard/products/${product.id}`}
-                    isActive={product.is_active}
-                    activeLabel="Pause listing"
-                    inactiveLabel="Publish listing"
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <EmptyStateCard
-            title="No products yet"
-            description="This seller account does not have any catalog items yet. Add your first product to start selling."
-            actionHref="/merchant/products/new"
-            actionLabel="Create product"
-          />
-        )}
+        <SellerProductInventory
+          products={data.products}
+          emptyTitle="No products yet"
+          emptyDescription="This seller account does not have any catalog items yet. Add your first product to start selling."
+          emptyActionHref="/merchant/products/new"
+          emptyActionLabel="Create product"
+        />
       </SectionCard>
     </DashboardShell>
   );

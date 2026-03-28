@@ -11,6 +11,7 @@ import type {
   OrderStatus,
   ProductCategory,
   User,
+  UserRole,
 } from "@/types";
 
 type Row = Record<string, unknown>;
@@ -71,6 +72,7 @@ const PRODUCT_CATEGORY_SET = new Set<ProductCategory>(
   PRODUCT_CATEGORIES.filter((value): value is ProductCategory => value !== "All"),
 );
 const DELIVERY_ZONE_SET = new Set<DeliveryZone>(DELIVERY_ZONES.map((zone) => zone.value));
+const USER_ROLE_SET = new Set<UserRole>(["buyer", "seller", "runner", "admin"]);
 const LANGUAGE_SET = new Set<Language>(["en", "am", "om"]);
 const ORDER_STATUS_SET = new Set<OrderStatus>([
   "PENDING",
@@ -199,6 +201,117 @@ export async function updateProductForCurrentUser(productId: string, input: Part
   revalidateProductViews(productId);
 
   return { message: "Product changes saved." };
+}
+
+type AdminUserPatch = Partial<{
+  role: UserRole;
+  delivery_zone: DeliveryZone | null;
+}>;
+
+export async function updateUserForAdmin(targetUserId: string, input: AdminUserPatch) {
+  const context = await requireSessionUser();
+  ensureRole(context.user, ["admin"]);
+
+  const id = targetUserId.trim();
+  if (!id) {
+    throw new DashboardOperationError("User ID is required.", 400);
+  }
+
+  if (input.role != null && id === context.user.id) {
+    throw new DashboardOperationError("Another admin must change your own platform role.", 400);
+  }
+
+  const row = await getSingleRow(context, "users", id, "User");
+  const currentRole = rowRole(row.role);
+  const nextRole = input.role ?? currentRole;
+
+  if (input.role != null && !USER_ROLE_SET.has(input.role)) {
+    throw new DashboardOperationError("Choose a valid account role.", 400);
+  }
+
+  let nextZone: DeliveryZone | null =
+    input.delivery_zone !== undefined
+      ? input.delivery_zone
+      : normalizeDeliveryZone(row.delivery_zone);
+
+  if (input.delivery_zone !== undefined && input.delivery_zone != null && !DELIVERY_ZONE_SET.has(input.delivery_zone)) {
+    throw new DashboardOperationError("Choose a valid delivery zone.", 400);
+  }
+
+  if (nextRole === "runner" && !nextZone) {
+    throw new DashboardOperationError("Runner accounts need a delivery zone before saving.", 400);
+  }
+
+  const dbPatch: Record<string, unknown> = {};
+  if (input.role != null) {
+    dbPatch.role = input.role;
+  }
+  if (input.delivery_zone !== undefined) {
+    dbPatch.delivery_zone = input.delivery_zone;
+  }
+
+  if (!Object.keys(dbPatch).length) {
+    throw new DashboardOperationError("Provide a role or delivery zone update.", 400);
+  }
+
+  const { error } = await context.supabase.from("users").update(dbPatch).eq("id", id);
+
+  if (error) {
+    throw new DashboardOperationError(error.message);
+  }
+
+  const serviceClient = createServiceSupabaseClient();
+  if (!serviceClient) {
+    throw new DashboardOperationError(
+      "Service role key is not configured; cannot sync sign-in metadata for this user.",
+      503,
+    );
+  }
+
+  const { data: authData, error: getAuthError } = await serviceClient.auth.admin.getUserById(id);
+  if (getAuthError || !authData?.user) {
+    throw new DashboardOperationError(getAuthError?.message ?? "Auth user not found.", 404);
+  }
+
+  const authUser = authData.user;
+  const user_metadata: Record<string, unknown> = { ...(authUser.user_metadata ?? {}) };
+  if (input.role != null) {
+    user_metadata.role = input.role;
+  }
+  if (input.delivery_zone !== undefined) {
+    user_metadata.delivery_zone = input.delivery_zone;
+  }
+
+  const app_metadata: Record<string, unknown> = { ...(authUser.app_metadata ?? {}) };
+  if (input.role != null) {
+    app_metadata.role = input.role;
+  }
+
+  const { error: authUpdateError } = await serviceClient.auth.admin.updateUserById(id, {
+    user_metadata,
+    app_metadata,
+  });
+
+  if (authUpdateError) {
+    throw new DashboardOperationError(authUpdateError.message);
+  }
+
+  await auditAdminAction(context.user.id, "user_role_or_zone", "user", id, {
+    ...dbPatch,
+  });
+
+  revalidatePath("/admin");
+  revalidatePath(getDashboardRoute(nextRole));
+
+  return {
+    message: "Account role and delivery settings updated. The user should refresh the app or sign in again to see all changes.",
+  };
+}
+
+function rowRole(value: unknown): UserRole {
+  return typeof value === "string" && USER_ROLE_SET.has(value as UserRole)
+    ? (value as UserRole)
+    : "buyer";
 }
 
 export async function updateShopForAdmin(shopId: string, isActive: boolean) {

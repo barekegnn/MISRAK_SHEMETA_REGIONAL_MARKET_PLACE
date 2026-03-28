@@ -15,9 +15,18 @@ type Props = {
   mode: "create" | "edit";
   shops: Shop[];
   product?: Product;
+  /** After save, navigate here (default `/merchant/products`). */
+  redirectAfterSave?: string;
+  cancelHref?: string;
 };
 
-export function MerchantProductForm({ mode, shops, product }: Props) {
+export function MerchantProductForm({
+  mode,
+  shops,
+  product,
+  redirectAfterSave = "/merchant/products",
+  cancelHref = "/merchant/products",
+}: Props) {
   const router = useRouter();
   const [shopId, setShopId] = useState(product?.shop_id ?? shops[0]?.id ?? "");
   const [name, setName] = useState(product?.name ?? "");
@@ -64,7 +73,7 @@ export function MerchantProductForm({ mode, shops, product }: Props) {
       }
 
       toast.success(payload.message ?? "Product saved.");
-      router.push("/merchant/products");
+      router.push(redirectAfterSave);
       router.refresh();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Unable to save product.");
@@ -186,7 +195,7 @@ export function MerchantProductForm({ mode, shops, product }: Props) {
               ? "Create product"
               : "Save changes"}
         </Button>
-        <LinkButton href="/merchant/products" variant="outline">
+        <LinkButton href={cancelHref} variant="outline">
           Cancel
         </LinkButton>
       </div>

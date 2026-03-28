@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { ProductCard } from "@/components/products/ProductCard";
 import { CatalogSidebar } from "@/components/products/CatalogSidebar";
-import { EmptyStateCard } from "@/components/dashboard/dashboard-ui";
+import { CatalogEmptyState } from "@/app/products/catalog-empty-state";
 import { getFilteredProducts } from "@/lib/data/marketplace";
 import type { ShopCity } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -25,12 +25,7 @@ async function ProductGrid({ searchParams }: { searchParams: SearchParams }) {
   });
 
   if (!list.length) {
-    return (
-      <EmptyStateCard
-        title="No products match these filters"
-        description="Try clearing a filter, broadening your search keywords, or publishing more active catalog items."
-      />
-    );
+    return <CatalogEmptyState />;
   }
 
   return (

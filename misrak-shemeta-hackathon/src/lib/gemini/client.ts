@@ -1,3 +1,5 @@
+import "server-only";
+
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 let genAI: GoogleGenerativeAI | null = null;

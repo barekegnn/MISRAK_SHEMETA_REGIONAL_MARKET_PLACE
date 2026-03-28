@@ -6,8 +6,11 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { SHOP_CITIES } from "@/lib/constants";
 import type { ShopCity } from "@/types";
+import { useI18n } from "@/lib/i18n/context";
+import { translateShopCity } from "@/lib/i18n/labels";
 
 export function CatalogSidebar() {
+  const { t } = useI18n();
   const router = useRouter();
   const params = useSearchParams();
   const [, startTransition] = useTransition();
@@ -31,16 +34,18 @@ export function CatalogSidebar() {
   return (
     <aside className="space-y-6">
       <div>
-        <Label className="text-sm font-semibold text-neutral-800">City</Label>
+        <Label className="text-sm font-semibold text-neutral-800">
+          {t("catalog_city")}
+        </Label>
         <div className="mt-2 flex flex-col gap-1">
-          {SHOP_CITIES.map(({ value, label }) => (
+          {SHOP_CITIES.map(({ value }) => (
             <Button
-              key={label}
+              key={value || "all"}
               variant={city === value ? "default" : "ghost"}
               className="justify-start"
               onClick={() => setParams({ city: value || undefined })}
             >
-              {label}
+              {translateShopCity(value, t)}
             </Button>
           ))}
         </div>
@@ -50,7 +55,7 @@ export function CatalogSidebar() {
         className="w-full"
         onClick={() => startTransition(() => router.push("/products"))}
       >
-        Clear filters
+        {t("catalog_clearFilters")}
       </Button>
     </aside>
   );

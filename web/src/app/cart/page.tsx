@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { LinkButton } from "@/components/ui/link-button";
 import { useAuth } from "@/lib/auth/context";
+import { isMarketplaceBuyer } from "@/lib/auth/shared";
 import { useCart } from "@/lib/cart/context";
 import { useI18n } from "@/lib/i18n/context";
 import { Button } from "@/components/ui/button";
@@ -54,29 +55,33 @@ export default function CartPage() {
   const deliveryTotal = groups.reduce((sum, group) => sum + group.delivery, 0);
 
   const total = subtotal + deliveryTotal;
+  const buyerOk = isMarketplaceBuyer(user);
+
   const cartStatus =
-    mode === "account"
+    !buyerOk
       ? {
-          badge: "Saved to account",
-          tone: "bg-emerald-100 text-emerald-900",
-          text: "These cart items are linked to your buyer account and will stay available after refresh.",
+          badge: user ? "Buyers only" : "Sign in required",
+          tone: "bg-amber-100 text-amber-900",
+          text: user
+            ? "Marketplace shopping and checkout are limited to buyer accounts."
+            : "Sign in with a buyer account to use the cart and sync it across devices.",
         }
-      : syncError
+      : mode === "account"
         ? {
-            badge: "Device only",
-            tone: "bg-amber-100 text-amber-900",
-            text: `${syncError} Changes are still saved on this browser.`,
+            badge: "Saved to account",
+            tone: "bg-emerald-100 text-emerald-900",
+            text: "These cart items are linked to your buyer account and will stay available after refresh.",
           }
-        : !user
+        : syncError
           ? {
-              badge: "Guest cart",
-              tone: "bg-indigo-100 text-indigo-900",
-              text: "You are shopping as a guest. Sign in to attach this cart to your buyer account.",
+              badge: "Sync issue",
+              tone: "bg-amber-100 text-amber-900",
+              text: `${syncError} Try retry sync after signing in as a buyer.`,
             }
           : {
-              badge: "Device only",
+              badge: "Waiting for sync",
               tone: "bg-neutral-100 text-neutral-700",
-              text: "Your items are currently saved on this device until account sync becomes available.",
+              text: "Cart sync should start automatically for buyer accounts with Supabase enabled.",
             };
 
   if (isHydrating && !items.length) {
@@ -110,13 +115,18 @@ export default function CartPage() {
               </LinkButton>
               {!user && accountSyncAvailable ? (
                 <LinkButton href="/auth" variant="outline">
-                  Sign in to save cart
+                  Sign in as a buyer
                 </LinkButton>
               ) : null}
-              {user && syncError ? (
+              {buyerOk && user && syncError ? (
                 <Button type="button" variant="outline" onClick={() => void refresh()}>
                   Retry account sync
                 </Button>
+              ) : null}
+              {user && !buyerOk ? (
+                <LinkButton href="/auth" variant="outline">
+                  Use a buyer account
+                </LinkButton>
               ) : null}
             </div>
           </CardContent>
@@ -148,13 +158,18 @@ export default function CartPage() {
             <div className="flex flex-wrap gap-2">
               {!user && accountSyncAvailable ? (
                 <LinkButton href="/auth" variant="outline" size="sm">
-                  Sign in to save cart
+                  Sign in as a buyer
                 </LinkButton>
               ) : null}
-              {user && syncError ? (
+              {buyerOk && user && syncError ? (
                 <Button type="button" variant="outline" size="sm" onClick={() => void refresh()}>
                   Retry sync
                 </Button>
+              ) : null}
+              {user && !buyerOk ? (
+                <LinkButton href="/auth" variant="outline" size="sm">
+                  Switch to buyer
+                </LinkButton>
               ) : null}
             </div>
           </CardContent>
@@ -279,9 +294,9 @@ export default function CartPage() {
               <div>
                 <p className="font-semibold text-[#1E1B4B]">Checkout summary</p>
                 <p className="mt-1 text-sm text-neutral-600">
-                  {mode === "account"
+                  {buyerOk && mode === "account"
                     ? "Checkout will use the items saved to your buyer account."
-                    : "Checkout will use the items currently saved on this browser."}
+                    : "You need a signed-in buyer with a synced cart before you can pay."}
                 </p>
               </div>
               <div className="flex justify-between text-sm">
@@ -312,12 +327,26 @@ export default function CartPage() {
                   <span className="font-medium">{groups.length}</span>
                 </div>
               </div>
-              <LinkButton
-                href="/checkout"
-                className="w-full bg-amber-500 font-semibold text-neutral-900 hover:bg-amber-400"
-              >
-                {t("proceedCheckout")}
-              </LinkButton>
+              {buyerOk && mode === "account" && !syncError ? (
+                <LinkButton
+                  href="/checkout"
+                  className="w-full bg-amber-500 font-semibold text-neutral-900 hover:bg-amber-400"
+                >
+                  {t("proceedCheckout")}
+                </LinkButton>
+              ) : (
+                <LinkButton
+                  href={!user ? "/auth" : !buyerOk ? "/auth" : "/account"}
+                  variant="outline"
+                  className="w-full border-amber-500 font-semibold text-amber-900"
+                >
+                  {!user
+                    ? "Sign in to check out"
+                    : !buyerOk
+                      ? "Buyer account required"
+                      : "Fix cart sync to check out"}
+                </LinkButton>
+              )}
               <LinkButton href="/products" variant="outline" className="w-full">
                 Continue shopping
               </LinkButton>

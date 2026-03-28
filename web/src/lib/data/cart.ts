@@ -1,5 +1,6 @@
 import "server-only";
 
+import { mapSupabaseUser } from "@/lib/auth/shared";
 import { calculateDeliveryFee } from "@/lib/logistics/pricing";
 import { sanitizeCartItems, mergeCartItems } from "@/lib/cart/shared";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
@@ -208,7 +209,15 @@ async function requireSupabaseUser(): Promise<SupabaseContext> {
   } = await supabase.auth.getUser();
 
   if (error || !user) {
-    throw new CartDataError("Sign in to use the account cart.", 401);
+    throw new CartDataError("Sign in to use the cart.", 401);
+  }
+
+  const mapped = mapSupabaseUser(user);
+  if (mapped.role !== "buyer") {
+    throw new CartDataError(
+      "Only buyer accounts can use the cart and checkout. Sellers fulfill orders from the merchant dashboard.",
+      403,
+    );
   }
 
   return { supabase, userId: user.id };

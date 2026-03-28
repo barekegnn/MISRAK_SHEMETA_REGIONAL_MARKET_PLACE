@@ -12,13 +12,17 @@ import type { Language } from "@/types";
 import en from "@/locales/en.json";
 import am from "@/locales/am.json";
 import om from "@/locales/om.json";
+import { interpolate } from "@/lib/i18n/interpolate";
 
 const DICTS: Record<Language, Record<string, string>> = { en, am, om };
 
 type I18nContextValue = {
   lang: Language;
   setLang: (l: Language) => void;
-  t: (key: keyof typeof en) => string;
+  t: (
+    key: keyof typeof en,
+    vars?: Record<string, string | number>,
+  ) => string;
 };
 
 const I18nContext = createContext<I18nContextValue | null>(null);
@@ -39,6 +43,10 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
+
+  useEffect(() => {
     const handleProfileLanguage = (event: Event) => {
       const nextLanguage = (event as CustomEvent<Language>).detail;
       if (nextLanguage === "en" || nextLanguage === "am" || nextLanguage === "om") {
@@ -51,7 +59,13 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const t = useCallback(
-    (key: keyof typeof en) => DICTS[lang][key] ?? DICTS.en[key] ?? String(key),
+    (
+      key: keyof typeof en,
+      vars?: Record<string, string | number>,
+    ): string => {
+      const raw = DICTS[lang][key] ?? DICTS.en[key] ?? String(key);
+      return interpolate(raw, vars);
+    },
     [lang],
   );
 

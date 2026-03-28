@@ -10,40 +10,24 @@ import { Label } from "@/components/ui/label";
 import { LinkButton } from "@/components/ui/link-button";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/lib/auth/context";
+import { isMarketplaceBuyer } from "@/lib/auth/shared";
 import { useCart } from "@/lib/cart/context";
 import { cn } from "@/lib/utils";
 import { calculateDeliveryFee } from "@/lib/logistics/pricing";
 import {
-  createDemoOrder,
   formatDemoPaymentProvider,
   type DemoPaymentProvider as PaymentProvider,
 } from "@/lib/demo-payments";
+import { PaymentProviderLogo } from "@/components/payments/payment-provider-logo";
 import { toast } from "sonner";
+import { useI18n } from "@/lib/i18n/context";
+import { translateDeliveryZone } from "@/lib/i18n/labels";
 
 const ETB_TO_KES = 0.65;
 
-const PAYMENT_OPTIONS: Array<{
-  id: PaymentProvider;
-  label: string;
-  badge: string;
-  description: string;
-}> = [
-  {
-    id: "chapa",
-    label: "Chapa",
-    badge: "ETB sandbox",
-    description: "Hosted checkout style sandbox for cards, bank transfer, and wallets.",
-  },
-  {
-    id: "mpesa",
-    label: "M-Pesa",
-    badge: "STK sandbox",
-    description: "Mobile push payment sandbox for Kenyan buyers paying in KES.",
-  },
-];
-
 export default function CheckoutPage() {
   const router = useRouter();
+  const { t } = useI18n();
   const {
     items,
     subtotal,
@@ -54,7 +38,7 @@ export default function CheckoutPage() {
     syncError,
     refresh,
   } = useCart();
-  const { user, deliveryZone } = useAuth();
+  const { user, deliveryZone, supabaseUser } = useAuth();
   const [provider, setProvider] = useState<PaymentProvider>("chapa");
   const [customerName, setCustomerName] = useState(user?.full_name ?? "Marketplace Buyer");
   const [phone, setPhone] = useState(user?.phone ?? "+254708374149");
@@ -62,6 +46,25 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const paymentOptions = useMemo(
+    () =>
+      [
+        {
+          id: "chapa" as const,
+          badge: t("checkout_pay_chapa_badge"),
+          description: t("checkout_pay_chapa_desc"),
+        },
+        {
+          id: "mpesa" as const,
+          badge: t("checkout_pay_mpesa_badge"),
+          description: t("checkout_pay_mpesa_desc"),
+        },
+      ] as const,
+    [t],
+  );
+
+  const zoneLabel = translateDeliveryZone(deliveryZone, t);
 
   const groups = useMemo(() => {
     const byShop = new Map<string, (typeof items)[0][]>();
@@ -79,19 +82,25 @@ export default function CheckoutPage() {
 
       return {
         shopId,
-        shopName: shop?.name ?? "Unknown seller",
+        shopName: shop?.name ?? t("checkout_unknownSeller"),
         delivery,
         items: shopItems,
       };
     });
-  }, [deliveryZone, items]);
+  }, [deliveryZone, items, t]);
 
   const deliveryTotal = groups.reduce((sum, group) => sum + group.delivery, 0);
   const totalEtb = subtotal + deliveryTotal;
   const totalKes = Math.round(totalEtb * ETB_TO_KES);
   const activeProviderLabel = formatDemoPaymentProvider(provider);
-  const accountCheckoutReady = Boolean(user) && mode === "account" && !syncError;
-  const checkoutModeLabel = accountCheckoutReady ? "Marketplace checkout" : "Sandbox fallback";
+  const buyerSession = isMarketplaceBuyer(user);
+  const accountCheckoutReady =
+    buyerSession && Boolean(supabaseUser) && mode === "account" && !syncError;
+  const checkoutModeLabel = accountCheckoutReady
+    ? t("checkout_mode_buyerReady")
+    : buyerSession
+      ? t("checkout_mode_sync")
+      : t("checkout_mode_signin");
   const checkoutModeTone = accountCheckoutReady
     ? "bg-emerald-100 text-emerald-900"
     : "bg-amber-100 text-amber-900";
@@ -101,96 +110,83 @@ export default function CheckoutPage() {
     setSubmitMessage(null);
 
     if (!items.length) {
-      toast.error("Add products to your cart before starting checkout.");
+      toast.error(t("checkout_toast_empty"));
+      return;
+    }
+
+    if (!isMarketplaceBuyer(user)) {
+      toast.error(t("checkout_toast_buyer"));
+      return;
+    }
+
+    if (!accountCheckoutReady) {
+      toast.error(syncError ?? t("checkout_toast_sync"));
       return;
     }
 
     if (!customerName.trim()) {
-      toast.error("Enter the customer name for this checkout.");
+      toast.error(t("checkout_toast_name"));
       return;
     }
 
     if (!phone.trim()) {
       toast.error(
         provider === "mpesa"
-          ? "Enter an M-Pesa phone number."
-          : "Enter a customer phone number.",
+          ? t("checkout_toast_phoneMpesa")
+          : t("checkout_toast_phone"),
       );
       return;
     }
 
     if (provider === "chapa" && !email.trim()) {
-      toast.error("Enter an email to simulate the Chapa sandbox checkout.");
+      toast.error(t("checkout_toast_chapaEmail"));
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      if (accountCheckoutReady) {
-        const response = await fetch("/api/checkout", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            provider,
-            customerName,
-            customerPhone: phone,
-            customerEmail: provider === "chapa" ? email : undefined,
-            deliveryZone,
-            items,
-          }),
-        });
-        const payload = (await response.json()) as {
-          orders?: Array<{ id: string }>;
-          error?: string;
-        };
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          provider,
+          customerName,
+          customerPhone: phone,
+          customerEmail: provider === "chapa" ? email : undefined,
+          deliveryZone,
+          items,
+        }),
+      });
+      const payload = (await response.json()) as {
+        orders?: Array<{ id: string }>;
+        error?: string;
+      };
 
-        if (!response.ok || !payload.orders?.length) {
-          throw new Error(payload.error ?? "Unable to create marketplace order.");
-        }
-
-        clear();
-        const message =
-          payload.orders.length > 1
-            ? `Created ${payload.orders.length} marketplace orders. View them in order history.`
-            : `${activeProviderLabel} marketplace payment is now in escrow.`;
-        setSubmitMessage(message);
-        toast.success(message);
-        const newParam =
-          payload.orders.length > 1
-            ? payload.orders.map((o) => o.id).join(",")
-            : payload.orders[0]?.id;
-        router.push(
-          newParam ? `/orders?new=${encodeURIComponent(newParam)}` : "/orders",
-        );
-        router.refresh();
-        return;
+      if (!response.ok || !payload.orders?.length) {
+        throw new Error(payload.error ?? t("checkout_toast_orderFail"));
       }
 
-      await new Promise((resolve) => window.setTimeout(resolve, 900));
-
-      const order = createDemoOrder({
-        provider,
-        customerName,
-        customerPhone: phone,
-        customerEmail: provider === "chapa" ? email : undefined,
-        deliveryZone,
-        subtotalEtb: subtotal,
-        deliveryEtb: deliveryTotal,
-        totalEtb,
-        totalKes: provider === "mpesa" ? totalKes : null,
-        items,
-      });
-
       clear();
-      const message = `${activeProviderLabel} sandbox payment approved on this device.`;
+      const message =
+        payload.orders.length > 1
+          ? t("checkout_success_multi", {
+              count: payload.orders.length,
+            })
+          : t("checkout_success_single", { provider: activeProviderLabel });
       setSubmitMessage(message);
       toast.success(message);
-      router.push(`/orders?highlight=${encodeURIComponent(order.id)}`);
+      const newParam =
+        payload.orders.length > 1
+          ? payload.orders.map((o) => o.id).join(",")
+          : payload.orders[0]?.id;
+      router.push(
+        newParam ? `/orders?new=${encodeURIComponent(newParam)}` : "/orders",
+      );
       router.refresh();
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Checkout failed. Please try again.";
+        error instanceof Error ? error.message : t("checkout_error_generic");
       setSubmitError(message);
       toast.error(message);
     } finally {
@@ -203,7 +199,7 @@ export default function CheckoutPage() {
       <main className="mx-auto max-w-5xl px-4 py-12">
         <Card>
           <CardContent className="py-12 text-center text-sm text-neutral-500">
-            Loading your saved cart before checkout...
+            {t("checkout_loadingCart")}
           </CardContent>
         </Card>
       </main>
@@ -219,14 +215,58 @@ export default function CheckoutPage() {
               {checkoutModeLabel}
             </Badge>
             <div>
-              <h1 className="text-2xl font-bold text-[#1E1B4B]">Your cart is empty</h1>
+              <h1 className="text-2xl font-bold text-[#1E1B4B]">
+                {t("checkout_emptyTitle")}
+              </h1>
               <p className="mt-2 text-sm text-neutral-600">
-                Add items first, then return here to complete checkout.
+                {t("checkout_emptyBody")}
               </p>
             </div>
             <LinkButton href="/products" className="w-full bg-[#4F46E5]">
-              Continue shopping
+              {t("checkout_continueShopping")}
             </LinkButton>
+            {!user ? (
+              <LinkButton href="/auth" variant="outline" className="w-full">
+                {t("signIn")}
+              </LinkButton>
+            ) : null}
+          </CardContent>
+        </Card>
+      </main>
+    );
+  }
+
+  if (!buyerSession) {
+    return (
+      <main className="mx-auto max-w-lg px-4 py-12">
+        <Card>
+          <CardContent className="space-y-4 p-6 text-center">
+            <Badge className="bg-amber-100 text-amber-900" variant="outline">
+              {t("checkout_badge_buyer")}
+            </Badge>
+            <div>
+              <h1 className="text-2xl font-bold text-[#1E1B4B]">
+                {t("checkout_buyerOnlyTitle")}
+              </h1>
+              <p className="mt-2 text-sm text-neutral-600">
+                {user
+                  ? t("checkout_buyerOnlyBodyAuthed")
+                  : t("checkout_buyerOnlyBodyGuest")}
+              </p>
+            </div>
+            <div className="flex flex-col gap-2">
+              <LinkButton href="/auth" className="w-full bg-[#4F46E5]">
+                {user ? t("checkout_switchBuyer") : t("signIn")}
+              </LinkButton>
+              {user && user.role === "seller" ? (
+                <LinkButton href="/merchant" variant="outline" className="w-full">
+                  {t("checkout_openMerchant")}
+                </LinkButton>
+              ) : null}
+              <LinkButton href="/cart" variant="outline" className="w-full">
+                {t("checkout_backCart")}
+              </LinkButton>
+            </div>
           </CardContent>
         </Card>
       </main>
@@ -240,24 +280,26 @@ export default function CheckoutPage() {
           <Badge className={checkoutModeTone} variant="outline">
             {checkoutModeLabel}
           </Badge>
-          {isSyncing ? <Badge variant="outline">Saving cart changes...</Badge> : null}
+          {isSyncing ? (
+            <Badge variant="outline">{t("checkout_savingCart")}</Badge>
+          ) : null}
         </div>
         <p className="mt-3 text-sm text-neutral-700">
           {accountCheckoutReady
-            ? "Your buyer account cart is ready. Completing payment here will create live marketplace orders."
-            : "This checkout page is ready, but without an account-synced cart it will fall back to a browser-saved sandbox order."}
+            ? t("checkout_sync_ok")
+            : t("checkout_sync_wait")}
         </p>
         {syncError ? (
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <p className="text-sm text-amber-800">{syncError}</p>
             {user ? (
               <Button type="button" variant="outline" size="sm" onClick={() => void refresh()}>
-                Retry account sync
+                {t("checkout_retrySync")}
               </Button>
             ) : null}
             {!user ? (
               <LinkButton href="/auth" variant="outline" size="sm">
-                Sign in for live checkout
+                {t("checkout_signinLive")}
               </LinkButton>
             ) : null}
           </div>
@@ -267,25 +309,24 @@ export default function CheckoutPage() {
       <div className="mt-6 flex flex-col gap-8 lg:flex-row">
         <section className="min-w-0 flex-1 space-y-4">
           <div>
-            <h1 className="text-3xl font-bold text-[#1E1B4B]">Checkout</h1>
-            <p className="mt-2 text-sm text-neutral-600">
-              Review the buyer details, confirm delivery coverage, choose a payment
-              method, and send the order into escrow.
-            </p>
+            <h1 className="text-3xl font-bold text-[#1E1B4B]">{t("checkout_title")}</h1>
+            <p className="mt-2 text-sm text-neutral-600">{t("checkout_subtitle")}</p>
           </div>
 
           <Card>
             <CardContent className="space-y-4 p-4">
               <div>
-                <p className="text-sm font-semibold text-[#1E1B4B]">Buyer details</p>
+                <p className="text-sm font-semibold text-[#1E1B4B]">
+                  {t("checkout_buyerDetails")}
+                </p>
                 <p className="mt-1 text-sm text-neutral-600">
-                  These details will be attached to the checkout and delivery handoff.
+                  {t("checkout_buyerDetailsHint")}
                 </p>
               </div>
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="customerName">Customer name</Label>
+                  <Label htmlFor="customerName">{t("checkout_customerName")}</Label>
                   <Input
                     id="customerName"
                     value={customerName}
@@ -296,7 +337,9 @@ export default function CheckoutPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="phone">
-                    {provider === "mpesa" ? "Phone (M-Pesa)" : "Phone"}
+                    {provider === "mpesa"
+                      ? t("checkout_phoneMpesa")
+                      : t("checkout_phone")}
                   </Label>
                   <Input
                     id="phone"
@@ -307,7 +350,7 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">{t("checkout_email")}</Label>
                   <Input
                     id="email"
                     type="email"
@@ -321,24 +364,24 @@ export default function CheckoutPage() {
               <Separator />
 
               <div>
-                <p className="text-sm font-semibold text-[#1E1B4B]">Delivery summary</p>
+                <p className="text-sm font-semibold text-[#1E1B4B]">
+                  {t("checkout_deliverySummary")}
+                </p>
                 <p className="mt-1 text-sm text-neutral-600">
-                  Current delivery zone and multi-shop handoff estimate for this cart.
+                  {t("checkout_deliverySummaryHint")}
                 </p>
               </div>
 
               <div className="grid gap-3 md:grid-cols-2">
                 <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
                   <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">
-                    Delivery zone
+                    {t("checkout_deliveryZone")}
                   </p>
-                  <p className="mt-2 font-semibold text-[#1E1B4B]">
-                    {deliveryZone.replace(/_/g, " ")}
-                  </p>
+                  <p className="mt-2 font-semibold text-[#1E1B4B]">{zoneLabel}</p>
                 </div>
                 <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
                   <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">
-                    Delivery groups
+                    {t("checkout_deliveryGroups")}
                   </p>
                   <p className="mt-2 font-semibold text-[#1E1B4B]">{groups.length}</p>
                 </div>
@@ -347,14 +390,16 @@ export default function CheckoutPage() {
               <Separator />
 
               <div>
-                <p className="text-sm font-semibold text-[#1E1B4B]">Payment method</p>
+                <p className="text-sm font-semibold text-[#1E1B4B]">
+                  {t("checkout_paymentMethod")}
+                </p>
                 <p className="mt-1 text-sm text-neutral-600">
-                  Pick the payment rail you want to use for this checkout.
+                  {t("checkout_paymentHint")}
                 </p>
               </div>
 
               <div className="grid gap-3 md:grid-cols-2">
-                {PAYMENT_OPTIONS.map((option) => {
+                {paymentOptions.map((option) => {
                   const selected = option.id === provider;
 
                   return (
@@ -369,8 +414,15 @@ export default function CheckoutPage() {
                       )}
                       onClick={() => setProvider(option.id)}
                     >
+                      <span className="sr-only">
+                        {option.id === "chapa" ? "Chapa" : "M-Pesa"}
+                      </span>
                       <div className="flex items-center justify-between gap-3">
-                        <p className="font-semibold text-[#1E1B4B]">{option.label}</p>
+                        <PaymentProviderLogo
+                          provider={option.id}
+                          height={28}
+                          className="max-h-7"
+                        />
                         <Badge variant="outline">{option.badge}</Badge>
                       </div>
                       <p className="mt-2 text-sm text-neutral-600">
@@ -384,20 +436,19 @@ export default function CheckoutPage() {
               <Separator />
 
               <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-700">
-                <p className="font-semibold text-[#1E1B4B]">
-                  {provider === "chapa" ? "Chapa checkout notes" : "M-Pesa checkout notes"}
+                <p className="flex flex-wrap items-center gap-2 font-semibold text-[#1E1B4B]">
+                  <PaymentProviderLogo provider={provider} height={22} className="max-h-5" />
+                  <span>{t("checkout_notesTitle")}</span>
                 </p>
                 <p className="mt-2">
                   {accountCheckoutReady
                     ? provider === "chapa"
-                      ? "Submitting now will create live marketplace orders and record Chapa as the selected payment provider."
-                      : `Submitting now will create live marketplace orders and record an M-Pesa payment using ${totalKes.toLocaleString()} KES as the demo conversion reference.`
-                    : provider === "chapa"
-                      ? "A successful hosted checkout will be simulated immediately after you confirm the buyer details."
-                      : `A successful STK push will be simulated using ${totalKes.toLocaleString()} KES.`}
+                      ? t("checkout_note_chapa")
+                      : t("checkout_note_mpesa", { kes: totalKes.toLocaleString() })
+                    : t("checkout_note_sync")}
                 </p>
                 <p className="mt-2 text-xs text-neutral-500">
-                  Delivery zone: {deliveryZone.replace(/_/g, " ")}
+                  {t("checkout_zoneLine", { zone: zoneLabel })}
                 </p>
               </div>
 
@@ -420,31 +471,38 @@ export default function CheckoutPage() {
           <Card className="lg:sticky lg:top-24">
             <CardContent className="space-y-4 p-4">
               <div>
-                <p className="text-sm font-semibold text-[#1E1B4B]">Order summary</p>
-                <p className="mt-1 text-sm text-neutral-600">
-                  {items.length} cart lines using {activeProviderLabel} on the{" "}
-                  {accountCheckoutReady ? "buyer account checkout" : "sandbox fallback"}.
+                <p className="text-sm font-semibold text-[#1E1B4B]">
+                  {t("checkout_orderSummary")}
+                </p>
+                <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-neutral-600">
+                  <span>{t("checkout_summaryLines", { count: items.length })}</span>
+                  <PaymentProviderLogo provider={provider} height={22} className="inline-block max-h-5" />
+                  <span>
+                    {accountCheckoutReady
+                      ? t("checkout_summarySynced")
+                      : t("checkout_summaryPending")}
+                  </span>
                 </p>
               </div>
 
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between gap-4">
-                  <span className="text-neutral-600">Subtotal</span>
+                  <span className="text-neutral-600">{t("subtotal")}</span>
                   <span className="font-medium">{subtotal.toLocaleString()} ETB</span>
                 </div>
                 <div className="flex justify-between gap-4">
-                  <span className="text-neutral-600">Delivery</span>
+                  <span className="text-neutral-600">{t("delivery")}</span>
                   <span className="font-medium">{deliveryTotal.toLocaleString()} ETB</span>
                 </div>
                 <div className="flex justify-between gap-4">
-                  <span className="text-neutral-600">Escrow total</span>
+                  <span className="text-neutral-600">{t("checkout_escrowTotal")}</span>
                   <span className="font-semibold text-[#1E1B4B]">
                     {totalEtb.toLocaleString()} ETB
                   </span>
                 </div>
                 {provider === "mpesa" ? (
                   <div className="flex justify-between gap-4">
-                    <span className="text-neutral-600">Sandbox conversion</span>
+                    <span className="text-neutral-600">{t("checkout_sandboxConversion")}</span>
                     <span className="font-medium">
                       {totalKes.toLocaleString()} KES
                     </span>
@@ -460,7 +518,9 @@ export default function CheckoutPage() {
                     <div className="flex items-center justify-between gap-3">
                       <p className="font-medium text-neutral-900">{group.shopName}</p>
                       <span className="text-xs text-neutral-500">
-                        Delivery {group.delivery.toLocaleString()} ETB
+                        {t("checkout_deliveryFee", {
+                          amount: group.delivery.toLocaleString(),
+                        })}
                       </span>
                     </div>
                     <div className="mt-3 space-y-2 text-sm">
@@ -471,9 +531,11 @@ export default function CheckoutPage() {
                         >
                           <div>
                             <p className="font-medium text-neutral-900">
-                              {item.product?.name ?? "Marketplace item"}
+                              {item.product?.name ?? t("checkout_marketplaceItem")}
                             </p>
-                            <p className="text-xs text-neutral-500">Qty {item.quantity}</p>
+                            <p className="text-xs text-neutral-500">
+                              {t("checkout_qty", { n: item.quantity })}
+                            </p>
                           </div>
                           <span className="text-sm font-medium text-neutral-700">
                             {(item.price_at_add * item.quantity).toLocaleString()} ETB
@@ -487,18 +549,28 @@ export default function CheckoutPage() {
 
               <Button
                 className="w-full bg-[#4F46E5]"
-                disabled={isSubmitting || isHydrating}
+                disabled={isSubmitting || isHydrating || !accountCheckoutReady}
                 onClick={() => void handlePayment()}
               >
-                {isSubmitting
-                  ? `Processing ${activeProviderLabel}...`
-                  : accountCheckoutReady
-                    ? `Pay with ${activeProviderLabel}`
-                    : `Pay with ${activeProviderLabel} sandbox`}
+                {isSubmitting ? (
+                  <span className="inline-flex items-center justify-center gap-2">
+                    <span>{t("checkout_processing")}</span>
+                    <span className="rounded-md bg-white/20 px-1.5 py-0.5">
+                      <PaymentProviderLogo provider={provider} height={22} className="max-h-5" />
+                    </span>
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center justify-center gap-2">
+                    <span>{t("checkout_payWith")}</span>
+                    <span className="rounded-md bg-white/20 px-1.5 py-0.5">
+                      <PaymentProviderLogo provider={provider} height={22} className="max-h-5" />
+                    </span>
+                  </span>
+                )}
               </Button>
 
               <LinkButton href="/cart" variant="outline" className="w-full">
-                Back to cart
+                {t("checkout_backCart")}
               </LinkButton>
             </CardContent>
           </Card>

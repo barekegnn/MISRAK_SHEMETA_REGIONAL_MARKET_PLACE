@@ -1,32 +1,38 @@
 import {
   DashboardShell,
   MetricCard,
-  OrderStatusBadge,
   SectionCard,
 } from "@/components/dashboard/dashboard-ui";
 import { LinkButton } from "@/components/ui/link-button";
-import { getSellerDashboardData } from "@/lib/data/marketplace";
+import { getOrderItemsByOrderIds, getSellerDashboardData } from "@/lib/data/marketplace";
 import { requireRole } from "@/lib/auth/server";
+import { MerchantProductForm } from "@/app/merchant/products/product-form";
+import { SellerProductInventory } from "@/app/merchant/seller-product-inventory";
+import { SellerOrdersQueue } from "@/app/merchant/seller-orders-queue";
+import { Badge } from "@/components/ui/badge";
 
 export default async function MerchantDashboardPage() {
   const user = await requireRole(["seller"]);
   const data = await getSellerDashboardData(user.id);
+  const orderItemsByOrderId = await getOrderItemsByOrderIds(
+    data.orders.map((order) => order.id),
+  );
 
   return (
     <DashboardShell
       eyebrow="Seller workspace"
       title="Seller dashboard"
-      description="Keep your catalog healthy, watch order flow, and manage the storefronts attached to your account."
+      description="Post products, manage your catalog, and fulfill buyer orders from this single hub."
       actions={
         <>
-          <LinkButton href="/merchant/products/new" className="bg-[#4F46E5] hover:bg-[#4338CA]">
-            New product
+          <LinkButton href="/merchant/orders" variant="outline">
+            Orders only
           </LinkButton>
           <LinkButton href="/merchant/products" variant="outline">
-            Manage products
+            Products only
           </LinkButton>
-          <LinkButton href="/merchant/orders" variant="outline">
-            Review orders
+          <LinkButton href="/account" variant="outline">
+            Account
           </LinkButton>
         </>
       }
@@ -54,10 +60,10 @@ export default async function MerchantDashboardPage() {
         />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div id="storefront-setup" className="grid gap-6 lg:grid-cols-2">
         <SectionCard
-          title="Storefront overview"
-          description="High-level view of the shops owned by this seller profile."
+          title="Your storefronts"
+          description="Shops linked to your account in Supabase."
         >
           {data.shops.length ? (
             <div className="space-y-3">
@@ -75,23 +81,26 @@ export default async function MerchantDashboardPage() {
             </div>
           ) : (
             <p className="rounded-xl border border-dashed border-neutral-300 bg-neutral-50 px-4 py-8 text-sm text-neutral-600">
-              No shop record is linked to this seller yet. Add a `shops` row with your user ID as `owner_id` to activate the seller workspace.
+              No shop is linked to this seller yet. Add a row in the{" "}
+              <code className="rounded bg-neutral-200 px-1">shops</code> table with your user
+              ID as <code className="rounded bg-neutral-200 px-1">owner_id</code>, then refresh
+              this page to publish products.
             </p>
           )}
         </SectionCard>
 
         <SectionCard
-          title="Low stock attention"
-          description="Products that are close to selling out."
+          title="Low stock"
+          description="Products that may need restocking soon."
           action={
             <LinkButton href="/merchant/products" variant="outline" size="sm">
-              Open inventory
+              Full catalog
             </LinkButton>
           }
         >
           {data.lowStockProducts.length ? (
             <div className="space-y-3">
-              {data.lowStockProducts.slice(0, 5).map((product) => (
+              {data.lowStockProducts.slice(0, 6).map((product) => (
                 <div
                   key={product.id}
                   className="rounded-xl border border-neutral-200 p-4 text-sm"
@@ -105,44 +114,83 @@ export default async function MerchantDashboardPage() {
             </div>
           ) : (
             <p className="rounded-xl border border-dashed border-neutral-300 bg-neutral-50 px-4 py-8 text-sm text-neutral-600">
-              No products are running low right now.
+              No products are running critically low.
             </p>
           )}
         </SectionCard>
       </div>
 
+      {data.shops.length ? (
+        <div id="post-product">
+          <SectionCard
+            title="Post a new product"
+            description="Create a listing and choose whether it goes live immediately."
+            action={
+              <LinkButton href="/merchant/products/new" variant="outline" size="sm">
+                Full-page form
+              </LinkButton>
+            }
+          >
+            <MerchantProductForm
+              mode="create"
+              shops={data.shops}
+              redirectAfterSave="/merchant"
+              cancelHref="/merchant#catalog"
+            />
+          </SectionCard>
+        </div>
+      ) : null}
+
+      <div id="catalog">
+        <SectionCard
+          title="Your products"
+          description="Publish, pause, or edit everything you sell."
+          action={
+            <div className="flex flex-wrap gap-2">
+              {data.shops.map((shop) => (
+                <Badge key={shop.id} variant="outline">
+                  {shop.name}
+                </Badge>
+              ))}
+              <LinkButton href="/merchant/products/new" size="sm">
+                Add product
+              </LinkButton>
+            </div>
+          }
+        >
+          <SellerProductInventory
+            products={data.products}
+            emptyTitle={data.shops.length ? "No products yet" : "Set up a shop first"}
+            emptyDescription={
+              data.shops.length
+                ? "Use the form above or add a product to start appearing in the marketplace."
+                : "Create a shop record for your seller account before you can list inventory."
+            }
+            emptyActionHref={
+              data.shops.length ? "/merchant#post-product" : "/merchant#storefront-setup"
+            }
+            emptyActionLabel={data.shops.length ? "Post a product" : "Storefront setup"}
+          />
+        </SectionCard>
+      </div>
+
       <SectionCard
-        title="Recent order activity"
-        description="Latest seller-side fulfillment activity."
+        title="Orders from buyers"
+        description="Review payments, line items, and move orders into dispatch."
         action={
           <LinkButton href="/merchant/orders" variant="outline" size="sm">
-            Open fulfillment
+            Dedicated orders page
           </LinkButton>
         }
       >
-        {data.orders.length ? (
-          <div className="space-y-3">
-            {data.orders.slice(0, 6).map((order) => (
-              <div
-                key={order.id}
-                className="flex flex-col gap-3 rounded-xl border border-neutral-200 p-4 md:flex-row md:items-center md:justify-between"
-              >
-                <div>
-                  <p className="font-medium text-[#1E1B4B]">{order.id}</p>
-                  <p className="mt-1 text-sm text-neutral-600">
-                    {order.total_amount.toLocaleString()} ETB ·{" "}
-                    {order.customer_name ?? "Customer pending"}
-                  </p>
-                </div>
-                <OrderStatusBadge status={order.status} />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="rounded-xl border border-dashed border-neutral-300 bg-neutral-50 px-4 py-8 text-sm text-neutral-600">
-            Seller orders will show up here once buyers start purchasing from your shops.
-          </p>
-        )}
+        <SellerOrdersQueue
+          orders={data.orders}
+          orderItemsByOrderId={orderItemsByOrderId}
+          emptyTitle="No orders yet"
+          emptyDescription="When buyers pay for your products, every order will show up here with actions to dispatch or flag issues."
+          emptyActionHref="/merchant#catalog"
+          emptyActionLabel="Manage products"
+        />
       </SectionCard>
     </DashboardShell>
   );
