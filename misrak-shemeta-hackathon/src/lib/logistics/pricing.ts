@@ -28,6 +28,24 @@ const MATRIX: Record<ShopCity, Partial<Record<DeliveryZone, DeliveryQuote>>> = {
     Harar_City: { fee: 180, estimatedTime: "5–6 hours" },
     Harar_Campus: { fee: 180, estimatedTime: "5–6 hours" },
   },
+  Aweday: {
+    Aweday_Town: { fee: 35, estimatedTime: "30–45 min" },
+    Harar_City: { fee: 55, estimatedTime: "1–1.5 hours" },
+    Harar_Campus: { fee: 55, estimatedTime: "1–1.5 hours" },
+    Dire_Dawa_City: { fee: 70, estimatedTime: "1.5–2.5 hours" },
+    DDU: { fee: 70, estimatedTime: "1.5–2.5 hours" },
+    Haramaya_Town: { fee: 90, estimatedTime: "3–4 hours" },
+    Haramaya_Campus: { fee: 90, estimatedTime: "3–4 hours" },
+  },
+  Jigjiga: {
+    Harar_City: { fee: 220, estimatedTime: "6–8 hours" },
+    Harar_Campus: { fee: 220, estimatedTime: "6–8 hours" },
+    Aweday_Town: { fee: 190, estimatedTime: "5–7 hours" },
+    Dire_Dawa_City: { fee: 200, estimatedTime: "6–8 hours" },
+    DDU: { fee: 200, estimatedTime: "6–8 hours" },
+    Haramaya_Town: { fee: 210, estimatedTime: "7–9 hours" },
+    Haramaya_Campus: { fee: 210, estimatedTime: "7–9 hours" },
+  },
 };
 
 export function calculateDeliveryFee(

@@ -7,7 +7,8 @@ export type DeliveryZone =
   | "Haramaya_Town"
   | "Haramaya_Campus";
 
-export type ShopCity = "Harar" | "Dire_Dawa";
+export const SHOP_CITIES = ["Harar", "Dire_Dawa", "Aweday", "Jigjiga"] as const;
+export type ShopCity = (typeof SHOP_CITIES)[number];
 export type LanguageCode = "en" | "am" | "om";
 export type UserRole = "buyer" | "seller" | "runner" | "admin";
 

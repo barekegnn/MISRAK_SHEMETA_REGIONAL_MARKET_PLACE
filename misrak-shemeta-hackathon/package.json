@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts",
+    "db:setup": "node -e \"console.log('1) Supabase → SQL Editor → paste & run: supabase/apply_all.sql\\n2) npm run seed')\""
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

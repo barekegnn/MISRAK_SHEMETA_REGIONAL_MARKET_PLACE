@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { useLocale } from "@/components/providers/locale-provider";
 import type { ProductCategory, ShopCity } from "@/types";
+import { SHOP_CITIES } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,7 +20,7 @@ const CATEGORIES: (ProductCategory | "all")[] = [
   "Other",
 ];
 
-const CITIES: (ShopCity | "all")[] = ["all", "Harar", "Dire_Dawa"];
+const CITIES: (ShopCity | "all")[] = ["all", ...SHOP_CITIES];
 
 export type ProductFilters = {
   q: string;

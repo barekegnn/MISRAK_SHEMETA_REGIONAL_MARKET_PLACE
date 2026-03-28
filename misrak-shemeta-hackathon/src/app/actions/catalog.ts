@@ -3,6 +3,22 @@
 import { createServerSupabase } from "@/lib/supabase/server";
 import type { ProductCategory, ShopCity } from "@/types";
 
+const SCHEMA_MISSING_HINT =
+  "Supabase has no app tables yet. Dashboard → SQL Editor → run the full script in misrak-shemeta-hackathon/supabase/apply_all.sql — then npm run seed.";
+
+function assertNoFatalSchemaError(error: { message?: string; code?: string } | null) {
+  if (!error) return;
+  const code = error.code ?? "";
+  const msg = error.message ?? "";
+  if (
+    code === "PGRST205" ||
+    msg.includes("schema cache") ||
+    msg.includes("Could not find the table")
+  ) {
+    throw new Error(`${msg} ${SCHEMA_MISSING_HINT}`);
+  }
+}
+
 export async function getPublicProducts(filters?: {
   q?: string;
   city?: ShopCity | "all";
@@ -28,6 +44,7 @@ export async function getPublicProducts(filters?: {
   if (filters?.max != null) q = q.lte("price", filters.max);
 
   const { data, error } = await q.order("created_at", { ascending: false });
+  assertNoFatalSchemaError(error);
   if (error) throw new Error(error.message);
 
   let rows = data ?? [];
@@ -65,6 +82,7 @@ export async function getProduct(id: string) {
     .eq("id", id)
     .eq("is_active", true)
     .maybeSingle();
+  assertNoFatalSchemaError(error);
   if (error) throw new Error(error.message);
   return data;
 }

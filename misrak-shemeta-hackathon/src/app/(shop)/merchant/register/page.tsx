@@ -20,9 +20,13 @@ export default function RegisterShopPage() {
     const fd = new FormData(e.currentTarget);
     setLoading(true);
     try {
+      const cityRaw = String(fd.get("city") || "Harar");
       await registerShop({
         name: String(fd.get("name") || ""),
-        city: fd.get("city") === "Dire_Dawa" ? "Dire_Dawa" : "Harar",
+        city:
+          cityRaw === "Dire_Dawa" || cityRaw === "Aweday" || cityRaw === "Jigjiga"
+            ? cityRaw
+            : "Harar",
         phone: String(fd.get("phone") || ""),
         description: String(fd.get("desc") || "") || undefined,
       });
@@ -50,7 +54,9 @@ export default function RegisterShopPage() {
             className="mt-1 w-full rounded-xl border border-brand-200 p-2"
           >
             <option value="Harar">Harar</option>
+            <option value="Aweday">Aweday</option>
             <option value="Dire_Dawa">Dire Dawa</option>
+            <option value="Jigjiga">Jigjiga</option>
           </select>
         </div>
         <div>
