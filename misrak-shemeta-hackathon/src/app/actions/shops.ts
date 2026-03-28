@@ -7,7 +7,7 @@ import { z } from "zod";
 
 const registerSchema = z.object({
   name: z.string().min(2).max(120),
-  city: z.enum(["Harar", "Dire_Dawa", "Aweday", "Jigjiga"]),
+  city: z.enum(["Harar", "Dire_Dawa", "Aweday", "Jigjiga", "Haramaya", "Jijiga"]),
   phone: z.string().min(9).max(20),
   description: z.string().max(2000).optional(),
 });

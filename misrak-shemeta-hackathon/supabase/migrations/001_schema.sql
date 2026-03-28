@@ -11,7 +11,7 @@ CREATE TYPE public.delivery_zone AS ENUM (
   'Haramaya_Campus'
 );
 
-CREATE TYPE public.shop_city AS ENUM ('Harar', 'Dire_Dawa');
+CREATE TYPE public.shop_city AS ENUM ('Harar', 'Dire_Dawa', 'Haramaya', 'Jijiga');
 
 CREATE TYPE public.user_role AS ENUM ('buyer', 'seller', 'runner', 'admin');
 

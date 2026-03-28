@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { useLocale } from "@/components/providers/locale-provider";
+import type { ShopCity } from "@/types";
 
 export default function RegisterShopPage() {
   const { t } = useLocale();
@@ -21,12 +22,18 @@ export default function RegisterShopPage() {
     setLoading(true);
     try {
       const cityRaw = String(fd.get("city") || "Harar");
+      const allowed = new Set<ShopCity>([
+        "Harar",
+        "Dire_Dawa",
+        "Aweday",
+        "Jigjiga",
+        "Haramaya",
+        "Jijiga",
+      ]);
+      const city: ShopCity = allowed.has(cityRaw as ShopCity) ? (cityRaw as ShopCity) : "Harar";
       await registerShop({
         name: String(fd.get("name") || ""),
-        city:
-          cityRaw === "Dire_Dawa" || cityRaw === "Aweday" || cityRaw === "Jigjiga"
-            ? cityRaw
-            : "Harar",
+        city,
         phone: String(fd.get("phone") || ""),
         description: String(fd.get("desc") || "") || undefined,
       });
@@ -57,6 +64,8 @@ export default function RegisterShopPage() {
             <option value="Aweday">Aweday</option>
             <option value="Dire_Dawa">Dire Dawa</option>
             <option value="Jigjiga">Jigjiga</option>
+            <option value="Haramaya">Haramaya</option>
+            <option value="Jijiga">Jijiga</option>
           </select>
         </div>
         <div>

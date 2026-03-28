@@ -7,7 +7,15 @@ export type DeliveryZone =
   | "Haramaya_Town"
   | "Haramaya_Campus";
 
-export const SHOP_CITIES = ["Harar", "Dire_Dawa", "Aweday", "Jigjiga"] as const;
+/** Matches extended `shop_city` enum: 001 + Aweday/Jigjiga + Haramaya/Jijiga migrations. */
+export const SHOP_CITIES = [
+  "Harar",
+  "Dire_Dawa",
+  "Aweday",
+  "Jigjiga",
+  "Haramaya",
+  "Jijiga",
+] as const;
 export type ShopCity = (typeof SHOP_CITIES)[number];
 export type LanguageCode = "en" | "am" | "om";
 export type UserRole = "buyer" | "seller" | "runner" | "admin";
