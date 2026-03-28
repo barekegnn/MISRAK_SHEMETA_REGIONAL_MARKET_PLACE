@@ -1,0 +1,162 @@
+{
+  "demoBanner": "የሀካቶን ተግባር — የሙከራ መረጃ ብቻ",
+  "nav": {
+    "home": "መነሻ",
+    "browse": "ካታሎግ",
+    "cart": "ጋሪ",
+    "orders": "ስርዝተኞች",
+    "profile": "መገለጫ"
+  },
+  "home": {
+    "title": "የምስራቅ ኢትዮጵያ የታመነ ገበያ",
+    "subtitle": "መደብር፣ ኢስክሮ፣ ኤም-ፔሳ፣ እና ባለብዙ ቋንቋ AI አጋዥ — ለሐረር፣ ድሬዳዋ፣ ሐረማያ እና አወዳይ።",
+    "ctaBrowse": "ምርቶችን ይመልከቱ",
+    "ctaDemo": "4 ሚና ዲግሞ",
+    "ctaPitch": "ለኢንቨስተሮች"
+  },
+  "auth": {
+    "title": "ወደ ሚስራክ ሸመታ እንኳን በደህና መጡ",
+    "subtitle": "ለመግዛት፣ ለመሸጥ ወይም ለማድረስ ይግቡ",
+    "email": "ኢሜይል",
+    "password": "የይለፍ ቃል",
+    "fullName": "ሙሉ ስም",
+    "signIn": "ግባ",
+    "signUp": "መዝግብ",
+    "google": "በጉግል ቀጥል",
+    "toggleSignUp": "መለያ የለዎትም? ይመዝገቡ",
+    "toggleSignIn": "መለያ አለዎት? ይግቡ"
+  },
+  "onboarding": {
+    "title": "የማድረሻ ክልልዎን ይምረጡ",
+    "subtitle": "በምስራቅ ሦስቱ ማዕዘን ትክክለኛ ክፍያዎችን እንድናሳይ ይህን እንጠቀማለን።",
+    "save": "አስቀምጥ እና ቀጥል",
+    "zones": {
+      "Harar_City": "ከተማ ሐረር",
+      "Harar_Campus": "ሐረር ካምፐስ",
+      "Aweday_Town": "ከተማ አወዳይ",
+      "Dire_Dawa_City": "ከተማ ድሬዳዋ",
+      "DDU": "ድሬዳዋ ዩኒቨርሲቲ",
+      "Haramaya_Town": "ከተማ ሐረማያ",
+      "Haramaya_Campus": "ዋና ካምፐስ ሐረማያ"
+    }
+  },
+  "products": {
+    "title": "ምርቶችን ያግኙ",
+    "searchPlaceholder": "በስም ወይም መግለጫ ይፈልጉ…",
+    "filters": "ማጣሪያዎች",
+    "category": "ምድብ",
+    "city": "የመደብር ከተማ",
+    "priceRange": "ዋጋ (ብር)",
+    "all": "ሁሉም",
+    "addToCart": "ወደ ጋሪ ጨምር",
+    "inStock": "በመጋዘን ውስጥ",
+    "lowStock": "ጥቂት ቀርቷል",
+    "statsLive": "የገበያ ሁኔታ",
+    "productsCount": "ምርቶች",
+    "shopsCount": "መደብሮች",
+    "buyersCount": "ገዢዎች"
+  },
+  "productDetail": {
+    "deliveryFee": "ወደ የእርስዎ ክልል ማድረሻ",
+    "shopInfo": "መደብር",
+    "callShop": "ይደውሉ"
+  },
+  "cart": {
+    "title": "ጋርዎ",
+    "empty": "ጋርዎ ባዶ ነው",
+    "subtotal": "ንዑስ ድምር",
+    "delivery": "ማድረሻ (በመደብር)",
+    "total": "ጠቅላላ",
+    "checkout": "ይክፈሉ",
+    "signInToCheckout": "ለመክፈል ይግቡ"
+  },
+  "checkout": {
+    "title": "በኤም-ፔሳ ይክፈሉ",
+    "testBanner": "የሙከራ ሁኔታ — እርግጥ ካሳ የለም",
+    "phoneLabel": "ኤም-ፔሳ ስልክ",
+    "pay": "ኤም-ፔሳ ተጠቀም",
+    "waiting": "የኤም-ፔሳ ማረጋገጫ በመጠባበቅ መካን…",
+    "etbToKes": "ጠቅላላ (ብር) → በኬሻ ይከፈላል",
+    "orderSummary": "የትእዛዝ ማጠቃለያ"
+  },
+  "orders": {
+    "title": "ትእዛዝዎ",
+    "empty": "እስካሁን ትእዛዝ የለም",
+    "view": "ክፈት",
+    "otpLabel": "OTP ለተላላኪ",
+    "timeline": "ሁኔታ"
+  },
+  "assistant": {
+    "badge": "በ AI የተጎለበተ",
+    "title": "የመደብር ረዳት",
+    "welcome": "ስለ ምርቶች፣ ዋጋ፣ መደብሮች ወይም ማድረሻ በየሚፈልጉት ቋንቋ ይጠይቁኝ።",
+    "placeholder": "በእንግሊዝኛ፣ አማርኛ ወይም አፋን ኦሮሞ…",
+    "send": "ላክ",
+    "suggested": {
+      "am": "ምን ዓይነት መጻሕፍት አለ?",
+      "om": "Meeshaalee barnoota meeqa qabdu?",
+      "en": "What’s the cheapest textbook in Harar?"
+    }
+  },
+  "merchant": {
+    "title": "የነጋዴ ዳሽቦርድ",
+    "balance": "የመደብር ሚዛን",
+    "products": "ምርቶች",
+    "orders": "ትእዛዞች",
+    "register": "መደብር ያስመዝግቡ"
+  },
+  "runner": {
+    "title": "የተላላኪ ዳሽቦርድ",
+    "empty": "በክልልዎ ውስጥ የተላኩ ትእዛዞች የሉም",
+    "completed": "የተጠናቀቁ ማድረሻዎች",
+    "otpAttempts": "ሙከራዎች"
+  },
+  "admin": {
+    "title": "አስተዳዳሪ",
+    "resetDemo": "ዲሞ ዳታ ዳግም አስጀምር",
+    "users": "ተጠቃሚዎች",
+    "shops": "መደብሮች",
+    "orders": "ትእዛዞች",
+    "payments": "የክፍያ መዝገቦች"
+  },
+  "demo": {
+    "title": "ሚስራክ ሸመታ — በቀጥታ ዲግሞ",
+    "subtitle": "በአንድ ጠቅታ ለእያንዳንዱ ሚና።",
+    "admin": "አስተዳዳሪ",
+    "seller": "ሻጭ",
+    "runner": "ተላላኪ",
+    "buyer": "ገዢ",
+    "flowCta": "የ 5 ደረጃ መመሪያ",
+    "diagramCaption": "አስተዳዳሪ · ሻጭ · ገዢ · ተላላኪ · ገቢ"
+  },
+  "demoFlow": {
+    "title": "የዲግሞ መስመር",
+    "stepMinutes": "~30 ሰከንድ እያንዳንዱ",
+    "complete": "ዲግሞ ተሳክቷል",
+    "completeSummary": "ሙሉ የታመነ ምርቅ ዑደት አሳይተዋል።",
+    "steps": [
+      { "title": "የአስተዳዳሪ እይታ", "body": "የቀጥታ ስታትስ እና እንቅስቃሴ።" },
+      { "title": "ሻጭ መላክ", "body": "የተቀድሞ ትእዛዝን እንደተላከ ምልክት ያድርጉ።" },
+      { "title": "የገዢ ጉዞ", "body": "AI → ጋሪ → ኤም-ፔሳ።" },
+      { "title": "OTP ተላላኪ", "body": "ማድረሻ ያረጋግጡ።" },
+      { "title": "አስተዳዳሪ መዝጊያ", "body": "ገቢ ያድሱ።" }
+    ]
+  },
+  "pitch": {
+    "hint": "← → ወይም ሰኪድ",
+    "slides": [
+      { "title": "ችግሩ", "body": "መደብሮች የማይታዩ። ገዢዎች ሰዓታት ይጓዛሉ። ሻጮች አይሰፍሩም። ተላላኪዎች ኃላፊነት የሌላቸው ስራ። ክፍያ በማጭበርበር ይጠፋል። እምነት የለም።" },
+      { "title": "መፍትሄው", "body": "ሚስራክ ሸመታ — ገዢ፣ ሻጭ እና ተላላኪ በምስራቅ ኢትዮጵያ ለማገናኘት የታመነ ክፍተት፣ ከ24/7 AI ጋር።" },
+      { "title": "የገቢያ መጠን", "body": "ከ 3 ሚልዮን በላይ ሕዝብ።" },
+      { "title": "ቴክኖሎጂ", "body": "Supabase · Gemini 1.5 Flash · M-PESA · Next.js PWA።" },
+      { "title": "የቀጥታ እንቅስቃሴ", "body": "እውነተኛ ስታትስ — በቀጥታ ይመልከቱ።" },
+      { "title": "ቡድን", "body": "Misrak Shemeta — እንባላለን።" }
+    ]
+  },
+  "common": {
+    "loading": "በመጫን ላይ…",
+    "error": "ስህተት ተፈጥሯል",
+    "retry": "እንደገና ሞክር",
+    "signOut": "ውጣ"
+  }
+}

@@ -1,0 +1,162 @@
+{
+  "demoBanner": "Demo hackathon — odeeffannoo q xaqlameetti qofa",
+  "nav": {
+    "home": "Mana",
+    "browse": "Galmaa",
+    "cart": "Gaarii",
+    "orders": "Ajajaawwan",
+    "profile": "Ibsa namaa"
+  },
+  "home": {
+    "title": "Bittaa Itoophiyaa bahaa amanamaa",
+    "subtitle": "Busteeota, eskiroo, M-PESA, fi gargaarsa AI afaan baay’ee — Haaraar, Dirree Dhawaa, Haramayyaafi Awwadaayf.",
+    "ctaBrowse": "Oomishaalee ilaali",
+    "ctaDemo": "Demo 4-actor",
+    "ctaPitch": "Wabiinwestootaaf"
+  },
+  "auth": {
+    "title": "Baga nagaan dhufte Misrak Shemeta",
+    "subtitle": "Bitachuuf, gurguruu ykn tajaajilaaf seeni",
+    "email": "Imeelii",
+    "password": "Jeanca iccitii",
+    "fullName": "Maqaa guutuu",
+    "signIn": "Seeni",
+    "signUp": "Galmaa'i",
+    "google": "Google waliin itti fufi",
+    "toggleSignUp": "Herrega hin qabdanee? galmaa'aa",
+    "toggleSignIn": "Herrega qabdanee? seeni"
+  },
+  "onboarding": {
+    "title": "Godina keessan filadhu",
+    "subtitle": "Kaffaltii sirrii akka agarsiifnu nan fayyadamna.",
+    "save": "Olkaa'i itti fufi",
+    "zones": {
+      "Harar_City": "Magaalaa Haaraar",
+      "Harar_Campus": "Kaampaasii Haaraar",
+      "Aweday_Town": "Magaalaa Awwadaay",
+      "Dire_Dawa_City": "Magaalaa Dirree Dhawaa",
+      "DDU": "Univarsiitii Dirree Dhawaa",
+      "Haramaya_Town": "Magaalaa Haramayya",
+      "Haramaya_Campus": "Kaampaasii ijoo Haramayya"
+    }
+  },
+  "products": {
+    "title": "Oomishaalee argadhu",
+    "searchPlaceholder": "Maqaa ykn ibsaan barbaadi…",
+    "filters": "Calaluu",
+    "category": "Gosa",
+    "city": "Magaalaa dukaanaa",
+    "priceRange": "Gatii (ETB)",
+    "all": "Hunda",
+    "addToCart": "Gaariitti dabaluu",
+    "inStock": "Qoqqoodamuu jira",
+    "lowStock": "Hanga xiqqoo",
+    "statsLive": "Haala gabaa ammaa",
+    "productsCount": "oomishaalee",
+    "shopsCount": "dukaanaawwan",
+    "buyersCount": "bittoota"
+  },
+  "productDetail": {
+    "deliveryFee": "Gara godina keessanitti",
+    "shopInfo": "Dukaana",
+    "callShop": "Bilbilaa"
+  },
+  "cart": {
+    "title": "Gaarii keessan",
+    "empty": "Gaarii duwwaa",
+    "subtotal": "Walumaan xiqqaa",
+    "delivery": "Geejjiba (dukaana hunda)",
+    "total": "Walumaan",
+    "checkout": "Kaffaltii",
+    "signInToCheckout": "Kaffaltiif seeni"
+  },
+  "checkout": {
+    "title": "M-PESAan kaffali",
+    "testBanner": "Haala Qaama — kaffaltiin dhugaa miti",
+    "phoneLabel": "Bilbililaa M-PESA",
+    "pay": "M-PESA faydami",
+    "waiting": "Mirkaneessaa M-PESA eegaa jira…",
+    "etbToKes": "Walumaan (ETB) → KES keessatti",
+    "orderSummary": "Cuunfaa ajajaa"
+  },
+  "orders": {
+    "title": "Ajajaawwan keessan",
+    "empty": "Amma ammallee ajajni hin jiru",
+    "view": "Bani",
+    "otpLabel": "OTP geejjibaa",
+    "timeline": "Haala"
+  },
+  "assistant": {
+    "badge": "AI'n kan hundeesse",
+    "title": "Gargaarsa dukaanaa",
+    "welcome": "Afaan barbaaddanitti oomisha, gatii, bilbilaa ykn geejjibaa gaafadhu.",
+    "placeholder": "Afaan Ingilizii, አማርኛ, Afaan Oromoo…",
+    "send": "Ergsi",
+    "suggested": {
+      "am": "ምን ዓይነት መጻሕፍት አለ?",
+      "om": "Meeshaalee barnoota meeqa qabdu?",
+      "en": "What’s the cheapest textbook in Harar?"
+    }
+  },
+  "merchant": {
+    "title": "Gabaa gurgurtootaa",
+    "balance": "Haftee dukaanaa",
+    "products": "Oomishaalee",
+    "orders": "Ajajaawwan",
+    "register": "Dukaana galmaa'aa"
+  },
+  "runner": {
+    "title": "Gabaa obaasaa",
+    "empty": "Godina keessatti ergamee hin jiru",
+    "completed": "Geejjiba xumuraman",
+    "otpAttempts": "Yaaliwwan"
+  },
+  "admin": {
+    "title": "Bulchiinsa",
+    "resetDemo": "Demo deebisi",
+    "users": "Fayyadamaa",
+    "shops": "Dukaanaawwan",
+    "orders": "Ajajaawwan",
+    "payments": "Galmeewwan kaffaltii"
+  },
+  "demo": {
+    "title": "Misrak Shemeta — demo",
+    "subtitle": "Tuqa tokko herrega tokko.",
+    "admin": "Bulchiinsaa",
+    "seller": "Gurgurtooti",
+    "runner": "Obaasaa",
+    "buyer": "Bitaa",
+    "flowCta": "Tartiiba 5-ta’e",
+    "diagramCaption": "Bulchiinsa · Gurgurtoota · Bitaa · Obaasaa · Galmeen"
+  },
+  "demoFlow": {
+    "title": "Tartiiba demo",
+    "stepMinutes": "~30 sekondii tokko",
+    "complete": "Demo Xumurame ✅",
+    "completeSummary": "Tartiiba amantaa guutuu agarsiifte.",
+    "steps": [
+      { "title": "Ilaalcha bulchiinsaa", "body": "Statiksii fi socho'aa." },
+      { "title": "Ergama gurgurtootaa", "body": "Ajaja PAID_ESCROW ergamee taasisi." },
+      { "title": "Deemsaa bitaa", "body": "AI → gaarii → M-PESA." },
+      { "title": "OTP obaasaa", "body": "Geejjiba mirkaneessi." },
+      { "title": "Xumura bulchiinsaa", "body": "Galmeen haaromsi." }
+    ]
+  },
+  "pitch": {
+    "hint": "← → ykn riqeessi",
+    "slides": [
+      { "title": "Rakkoo", "body": "Dukkuun hin mul'atu. Bittoonni sa'aatii deemtu. Gurgurtoonni hin ba'anu. Obaastuun hojii sirrii hin qaban. Kaffaltiin ni badii. Amanni hin jiru." },
+      { "title": "Furmaata", "body": "Misrak Shemeta — ciminaa bitaa, gurguu fi geejjibaa Itoophiyaa bahaa walitti qabu, AI afaan baay'eefi M-PESA waliin." },
+      { "title": "Guddina gabaa", "body": "Miliyoona 3 ol namoota." },
+      { "title": "Teknooloojii", "body": "Supabase · Gemini 1.5 Flash · M-PESA · Next.js PWA." },
+      { "title": "Socho'aa ammaa", "body": "Statiksii dhugaa ilaali." },
+      { "title": "Garee", "body": "Misrak Shemeta — nu waliin ijaaramaa." }
+    ]
+  },
+  "common": {
+    "loading": "Fe'aa jira…",
+    "error": "Dogoggorri",
+    "retry": "Ammas yaali",
+    "signOut": "Ba'i"
+  }
+}

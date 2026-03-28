@@ -1,0 +1,180 @@
+{
+  "demoBanner": "Hackathon Demo — test data & sandbox payments only",
+  "nav": {
+    "home": "Home",
+    "browse": "Browse",
+    "cart": "Cart",
+    "orders": "Orders",
+    "profile": "Profile"
+  },
+  "home": {
+    "title": "Eastern Ethiopia’s trusted marketplace",
+    "subtitle": "Shops, escrow, M-PESA, and a multilingual AI assistant — built for Harar, Dire Dawa, Haramaya, and Aweday.",
+    "ctaBrowse": "Browse products",
+    "ctaDemo": "4-actor demo",
+    "ctaPitch": "Investor pitch"
+  },
+  "auth": {
+    "title": "Welcome to Misrak Shemeta",
+    "subtitle": "Sign in to shop, sell, or run deliveries",
+    "email": "Email",
+    "password": "Password",
+    "fullName": "Full name",
+    "signIn": "Sign in",
+    "signUp": "Create account",
+    "google": "Continue with Google",
+    "toggleSignUp": "Need an account? Sign up",
+    "toggleSignIn": "Already have an account? Sign in"
+  },
+  "onboarding": {
+    "title": "Choose your delivery zone",
+    "subtitle": "We use this to show accurate fees across the Eastern Triangle.",
+    "save": "Save and continue",
+    "zones": {
+      "Harar_City": "Harar City",
+      "Harar_Campus": "Harar Campus (HU)",
+      "Aweday_Town": "Aweday Town",
+      "Dire_Dawa_City": "Dire Dawa City",
+      "DDU": "Dire Dawa University",
+      "Haramaya_Town": "Haramaya Town",
+      "Haramaya_Campus": "Haramaya Main Campus"
+    }
+  },
+  "products": {
+    "title": "Discover products",
+    "searchPlaceholder": "Search by name or description…",
+    "filters": "Filters",
+    "category": "Category",
+    "city": "Shop city",
+    "priceRange": "Price (ETB)",
+    "all": "All",
+    "addToCart": "Add to cart",
+    "inStock": "In stock",
+    "lowStock": "Low stock",
+    "statsLive": "Live marketplace",
+    "productsCount": "products",
+    "shopsCount": "shops",
+    "buyersCount": "buyers"
+  },
+  "productDetail": {
+    "deliveryFee": "Delivery to your zone",
+    "shopInfo": "Shop",
+    "callShop": "Call shop"
+  },
+  "cart": {
+    "title": "Your cart",
+    "empty": "Your cart is empty",
+    "subtotal": "Subtotal",
+    "delivery": "Delivery (by shop)",
+    "total": "Total",
+    "checkout": "Checkout",
+    "signInToCheckout": "Sign in to checkout"
+  },
+  "checkout": {
+    "title": "Pay with M-PESA",
+    "testBanner": "Test Mode — No real money charged",
+    "phoneLabel": "M-PESA phone (Safaricom)",
+    "pay": "Pay with M-PESA",
+    "waiting": "Waiting for M-PESA confirmation…",
+    "etbToKes": "Total (ETB) → charged in KES (demo rate)",
+    "orderSummary": "Order summary"
+  },
+  "orders": {
+    "title": "Your orders",
+    "empty": "No orders yet",
+    "view": "View",
+    "otpLabel": "Delivery OTP (show to runner)",
+    "timeline": "Status"
+  },
+  "assistant": {
+    "badge": "Powered by AI",
+    "title": "Shop Assistant",
+    "welcome": "Ask me anything about products, prices, shops, or delivery in your language.",
+    "placeholder": "Ask in English, አማርኛ, or Afaan Oromoo…",
+    "send": "Send",
+    "suggested": {
+      "am": "ምን ዓይነት መጻሕፍት አለ?",
+      "om": "Meeshaalee barnoota meeqa qabdu?",
+      "en": "What’s the cheapest textbook in Harar?"
+    }
+  },
+  "merchant": {
+    "title": "Merchant hub",
+    "balance": "Shop balance",
+    "products": "Products",
+    "orders": "Orders",
+    "register": "Register shop"
+  },
+  "runner": {
+    "title": "Runner dashboard",
+    "empty": "No dispatched orders in your zone",
+    "completed": "Completed deliveries",
+    "otpAttempts": "Attempts"
+  },
+  "admin": {
+    "title": "Admin",
+    "resetDemo": "Reset demo data",
+    "users": "Users",
+    "shops": "Shops",
+    "orders": "Orders",
+    "payments": "Payment logs"
+  },
+  "demo": {
+    "title": "Misrak Shemeta — live demo",
+    "subtitle": "One tap per role. Built for evaluators.",
+    "admin": "Admin",
+    "seller": "Seller",
+    "runner": "Runner",
+    "buyer": "Buyer",
+    "flowCta": "Guided 5-step flow",
+    "diagramCaption": "Admin monitors · Seller fulfills · Buyer pays · Runner confirms · Revenue flows"
+  },
+  "demoFlow": {
+    "title": "Guided demo flow",
+    "stepMinutes": "~30 sec each",
+    "complete": "Demo Complete",
+    "completeSummary": "You’ve walked the full trust loop: stats, dispatch, payment intent, OTP release, and admin revenue — in under five minutes.",
+    "steps": [
+      { "title": "Admin overview", "body": "Live stats, escrow, and activity." },
+      { "title": "Seller dispatch", "body": "Mark a pre-seeded PAID escrow order as dispatched." },
+      { "title": "Buyer journey", "body": "AI → cart → M-PESA checkout (sandbox)." },
+      { "title": "Runner OTP", "body": "Confirm delivery; seller balance updates." },
+      { "title": "Admin wrap-up", "body": "Refresh revenue and order counts." }
+    ]
+  },
+  "pitch": {
+    "hint": "Use ← → or swipe · Esc to exit focus",
+    "slides": [
+      {
+        "title": "The problem",
+        "body": "Shops are invisible. Buyers travel hours. Sellers can’t scale. Runners lack structured work. Payments get scammed and goods don’t arrive. There is no trust."
+      },
+      {
+        "title": "The solution",
+        "body": "Misrak Shemeta: the trust layer connecting buyers, sellers, and runners across Eastern Ethiopia — with escrow-protected M-PESA and a 24/7 multilingual AI assistant."
+      },
+      {
+        "title": "Market size",
+        "body": "3M+ people across Harar, Dire Dawa, Haramaya, Aweday, and surrounding areas."
+      },
+      {
+        "title": "Technology",
+        "body": "Supabase · Google Gemini 1.5 Flash · M-PESA Daraja · Next.js PWA — fast, inclusive, investor-grade."
+      },
+      {
+        "title": "Live traction",
+        "body": "Real listings, real checkout flow, real role separation — watch the stats update live."
+      },
+      {
+        "title": "Team & contact",
+        "body": "Misrak Shemeta — Eastern Ethiopia Regional Marketplace. Let’s build trust at scale."
+      }
+    ]
+  },
+  "common": {
+    "loading": "Loading…",
+    "error": "Something went wrong",
+    "retry": "Retry",
+    "signOut": "Sign out"
+  }
+}
