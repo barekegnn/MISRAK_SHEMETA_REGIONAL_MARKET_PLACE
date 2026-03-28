@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, Phone, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import type { DeliveryZone, ShopCity } from "@/types";
 import { calculateDeliveryFee } from "@/lib/logistics/pricing";
 import Link from "next/link";
 import { BrowseTrail } from "@/components/navigation/browse-trail";
+import { genericListingImage, resolveProductGallery } from "@/lib/product-images";
 
 type P = {
   id: string;
@@ -42,9 +43,24 @@ export function ProductDetailClient({
   const { t } = useLocale();
   const { user } = useAuth();
   const qc = useQueryClient();
-  const imgs = product.images?.length ? product.images : ["/icons/icon-192.png"];
+  const imagesKey = product.images?.join("|") ?? "";
+  const gallery = useMemo(
+    () => resolveProductGallery(product.images, product.category),
+    [product.category, imagesKey]
+  );
+  const [useGenericHero, setUseGenericHero] = useState(false);
+  const imgs = useGenericHero ? [genericListingImage()] : gallery;
   const [idx, setIdx] = useState(0);
   const shop = product.shops;
+
+  useEffect(() => {
+    setUseGenericHero(false);
+    setIdx(0);
+  }, [product.id]);
+
+  useEffect(() => {
+    if (idx >= imgs.length) setIdx(0);
+  }, [idx, imgs.length]);
   const price = Number(product.price);
   const fee = shop
     ? calculateDeliveryFee(shop.city, deliveryZone).fee
@@ -114,11 +130,12 @@ export function ProductDetailClient({
         <div className="relative aspect-square overflow-hidden rounded-3xl border border-brand-100 bg-brand-50 shadow-lg">
           <Image
             src={imgs[idx]}
-            alt=""
+            alt={product.name}
             fill
             className="object-cover"
             priority
             unoptimized={imgs[idx].startsWith("http")}
+            onError={() => setUseGenericHero(true)}
           />
           {imgs.length > 1 && (
             <>
@@ -153,7 +170,13 @@ export function ProductDetailClient({
                 i === idx ? "border-brand-500" : "border-transparent"
               }`}
             >
-              <Image src={src} alt="" fill className="object-cover" unoptimized={src.startsWith("http")} />
+              <Image
+                src={src}
+                alt=""
+                fill
+                className="object-cover"
+                unoptimized={src.startsWith("http")}
+              />
             </button>
           ))}
         </div>

@@ -73,6 +73,8 @@
     "productsInShop": "በዚህ መደብር ያሉ ምርቶች",
     "noProductsYet": "በዚህ መደብር ምርት የለም።",
     "noDescription": "በሚስራክ ሸመታ የታመነ ሻጭ።",
+    "shelfPreview": "መገናኛ ምርቶች",
+    "noListingsYet": "ዝርዝር በቅርብ ቀን",
     "emptyArea": "በዚህ ክልል መደብር የለም።",
     "emptyAreaHint": "ሌላ ከተማ ይሞክሩ ወይም «ሁሉም ክልሎች» ይምረጡ።",
     "hub": {

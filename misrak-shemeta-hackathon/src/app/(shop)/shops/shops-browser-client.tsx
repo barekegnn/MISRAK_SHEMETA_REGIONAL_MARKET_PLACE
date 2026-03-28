@@ -99,7 +99,7 @@ export function ShopsBrowserClient() {
       {isPending ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-[320px] rounded-2xl" />
+            <Skeleton key={i} className="h-[400px] rounded-[1.35rem]" />
           ))}
         </div>
       ) : shops.length === 0 ? (

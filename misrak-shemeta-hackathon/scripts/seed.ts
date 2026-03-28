@@ -2,6 +2,10 @@
  * Demo seed — eight shops (two per city: Harar, Aweday, Dire_Dawa, Jigjiga), nine unique
  * products each (72 SKUs). Run: npm run seed
  *
+ * Also provisions four Gmail-shaped Auth users (buyer/seller/runner/admin), each with a
+ * distinct password (defaults in seed; override with SEED_GMAIL_*_PASSWORD). Shops stay linked to
+ * seller@misrak.demo; use Gmail buyers/runners for UI tests as needed.
+ *
  * Apply migration 005_extend_shop_cities.sql before seeding Aweday/Jigjiga shops.
  *
  * Runner zone = Haramaya_Campus matches buyer@ for DISPATCHED OTP demos.
@@ -50,6 +54,68 @@ const DEMO = [
     role: "buyer" as const,
     delivery_zone: "Haramaya_Campus" as const,
     language: "am" as const,
+  },
+];
+
+/**
+ * Gmail-shaped testers: each account has its own password (not the same format as the email).
+ * Override with SEED_GMAIL_* and SEED_GMAIL_*_PASSWORD in .env.local.
+ */
+const GMAIL_DEMO: Array<{
+  email: string;
+  password: string;
+  role: "buyer" | "seller" | "runner" | "admin";
+  delivery_zone: "Haramaya_Campus" | null;
+  language: "en" | "am" | "om";
+  full_name: string;
+}> = [
+  {
+    email:
+      process.env.SEED_GMAIL_BUYER?.trim() ||
+      "misrak.shemeta.buyer@gmail.com",
+    password:
+      process.env.SEED_GMAIL_BUYER_PASSWORD?.trim() ||
+      "Misrak!Buyer-east-7K",
+    role: "buyer",
+    delivery_zone: "Haramaya_Campus",
+    language: "en",
+    full_name: "Misrak Test Buyer",
+  },
+  {
+    email:
+      process.env.SEED_GMAIL_SELLER?.trim() ||
+      "misrak.shemeta.seller@gmail.com",
+    password:
+      process.env.SEED_GMAIL_SELLER_PASSWORD?.trim() ||
+      "Shop@Sell-DDU-9mQ",
+    role: "seller",
+    delivery_zone: null,
+    language: "en",
+    full_name: "Misrak Test Seller",
+  },
+  {
+    email:
+      process.env.SEED_GMAIL_RUNNER?.trim() ||
+      "misrak.shemeta.runner@gmail.com",
+    password:
+      process.env.SEED_GMAIL_RUNNER_PASSWORD?.trim() ||
+      "Fleet#Runner-zone-4p",
+    role: "runner",
+    delivery_zone: "Haramaya_Campus",
+    language: "en",
+    full_name: "Misrak Test Runner",
+  },
+  {
+    email:
+      process.env.SEED_GMAIL_ADMIN?.trim() ||
+      "misrak.shemeta.admin@gmail.com",
+    password:
+      process.env.SEED_GMAIL_ADMIN_PASSWORD?.trim() ||
+      "Platform$Admin-hub-2R",
+    role: "admin",
+    delivery_zone: null,
+    language: "en",
+    full_name: "Misrak Test Admin",
   },
 ];
 
@@ -162,7 +228,7 @@ function productImage(idx: number): string {
     "1513506004635-25ed44e6367d", // bottle / drink
   ];
   const id = ids[idx % ids.length];
-  return `https://images.unsplash.com/photo-${id}?w=900&q=82&auto=format&fit=crop&sig=${idx}`;
+  return `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=900&q=85`;
 }
 
 const CATALOG: {
@@ -856,7 +922,14 @@ const CATALOG: {
 async function ensureAuthUser(email: string, password: string) {
   const { data: list } = await admin.auth.admin.listUsers();
   const existing = list.users.find((u) => u.email === email);
-  if (existing) return existing.id;
+  if (existing) {
+    const { error: upErr } = await admin.auth.admin.updateUserById(
+      existing.id,
+      { password, email_confirm: true }
+    );
+    if (upErr) throw upErr;
+    return existing.id;
+  }
   const { data, error } = await admin.auth.admin.createUser({
     email,
     password,
@@ -885,6 +958,22 @@ async function main() {
       { onConflict: "id" }
     );
     if (upsertErr) throw upsertErr;
+  }
+
+  for (const g of GMAIL_DEMO) {
+    const id = await ensureAuthUser(g.email, g.password);
+    const { error: gErr } = await admin.from("users").upsert(
+      {
+        id,
+        email: g.email,
+        full_name: g.full_name,
+        role: g.role,
+        delivery_zone: g.delivery_zone,
+        language: g.language,
+      },
+      { onConflict: "id" }
+    );
+    if (gErr) throw gErr;
   }
 
   const { data: sellerRow, error: sellerErr } = await admin
@@ -997,6 +1086,14 @@ async function main() {
   }
 
   console.log("Seed complete: 8 shops (2 per city), 72 products, demo orders (first Harar shop).");
+  console.log("\nGmail-style test accounts (each has its own password):\n");
+  for (const g of GMAIL_DEMO) {
+    console.log(`  ${g.role.padEnd(8)}  ${g.email}`);
+    console.log(`             pw: ${g.password}\n`);
+  }
+  console.log(
+    "Override emails/passwords with SEED_GMAIL_* and SEED_GMAIL_*_PASSWORD in .env.local.\n"
+  );
 }
 
 main().catch((e) => {

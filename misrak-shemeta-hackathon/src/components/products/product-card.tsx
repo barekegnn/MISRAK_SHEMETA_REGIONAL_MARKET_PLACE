@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -14,6 +15,11 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import type { ShopCity } from "@/types";
+import {
+  categoryFallbackImage,
+  genericListingImage,
+  resolveProductCardImage,
+} from "@/lib/product-images";
 
 export type ProductCardData = {
   id: string;
@@ -46,8 +52,27 @@ export function ProductCard({
   const { user } = useAuth();
   const qc = useQueryClient();
   const shop = product.shops;
-  const img = product.images?.[0] ?? "/icons/icon-192.png";
   const price = Number(product.price);
+  const [imgSrc, setImgSrc] = useState(() =>
+    resolveProductCardImage(product.images, product.category)
+  );
+  const fallbackStep = useRef(0);
+
+  const imagesKey = product.images?.join("|") ?? "";
+
+  useEffect(() => {
+    fallbackStep.current = 0;
+    setImgSrc(resolveProductCardImage(product.images, product.category));
+  }, [product.id, product.category, imagesKey]);
+
+  function onImgError() {
+    if (fallbackStep.current === 0) {
+      fallbackStep.current = 1;
+      setImgSrc(categoryFallbackImage(product.category));
+      return;
+    }
+    setImgSrc(genericListingImage());
+  }
 
   async function add() {
     if (!user) {
@@ -77,12 +102,13 @@ export function ProductCard({
       <Card className="group flex h-full flex-col overflow-hidden border-brand-100 shadow-md transition-shadow hover:shadow-xl">
         <Link href={`/products/${product.id}`} className="relative block aspect-[4/3] overflow-hidden bg-brand-50">
           <Image
-            src={img}
-            alt=""
+            src={imgSrc}
+            alt={product.name}
             fill
             className="object-cover transition duration-500 group-hover:scale-105"
             sizes="(max-width:768px) 50vw, 33vw"
-            unoptimized={img.startsWith("http")}
+            unoptimized={imgSrc.startsWith("http")}
+            onError={onImgError}
           />
           <div className="absolute left-2 top-2 flex gap-1">
             <Badge variant="secondary" className="backdrop-blur-sm">
