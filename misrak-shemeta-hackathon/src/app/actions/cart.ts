@@ -62,7 +62,7 @@ export async function addToCart(item: CartItemRow) {
     .eq("buyer_id", user.id);
 
   revalidatePath("/cart");
-  revalidatePath("/products");
+  revalidatePath("/shops");
 }
 
 export async function updateCartItem(productId: string, quantity: number) {

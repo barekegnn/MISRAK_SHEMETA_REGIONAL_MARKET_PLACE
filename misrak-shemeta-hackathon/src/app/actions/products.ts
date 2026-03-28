@@ -102,7 +102,8 @@ export async function createProduct(
     .eq("id", productId);
 
   revalidatePath("/merchant/products");
-  revalidatePath("/products");
+  revalidatePath("/shops");
+  revalidatePath(`/shops/${shopId}`);
 }
 
 export async function updateProduct(
@@ -110,7 +111,7 @@ export async function updateProduct(
   patch: Partial<z.infer<typeof productBase>>
 ) {
   const supabase = await createServerSupabase();
-  await getMyShopId(supabase);
+  const { shopId } = await getMyShopId(supabase);
 
   const { error } = await supabase
     .from("products")
@@ -121,18 +122,20 @@ export async function updateProduct(
     .eq("id", productId);
   if (error) throw new Error(error.message);
   revalidatePath("/merchant/products");
-  revalidatePath("/products");
+  revalidatePath("/shops");
+  revalidatePath(`/shops/${shopId}`);
   revalidatePath(`/products/${productId}`);
 }
 
 export async function deleteProduct(productId: string) {
   const supabase = await createServerSupabase();
-  await getMyShopId(supabase);
+  const { shopId } = await getMyShopId(supabase);
   const { error } = await supabase
     .from("products")
     .update({ is_active: false, updated_at: new Date().toISOString() })
     .eq("id", productId);
   if (error) throw new Error(error.message);
   revalidatePath("/merchant/products");
-  revalidatePath("/products");
+  revalidatePath("/shops");
+  revalidatePath(`/shops/${shopId}`);
 }

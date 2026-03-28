@@ -3,14 +3,35 @@
   "nav": {
     "home": "Home",
     "browse": "Browse",
+    "products": "Products",
     "cart": "Cart",
     "orders": "Orders",
-    "profile": "Profile"
+    "profile": "Profile",
+    "dashboards": "Dashboards",
+    "mainNav": "Main menu",
+    "language": "Language"
+  },
+  "dashboards": {
+    "title": "Your dashboards",
+    "subtitle": "Open the workspace that matches your role.",
+    "signedInAs": "Signed in",
+    "roleLabel": "Role",
+    "signInPrompt": "Sign in to see merchant, runner, or admin tools when your account has those permissions.",
+    "forbiddenToast": "You don’t have access to that area.",
+    "shopHome": "Shop & buy",
+    "shopHomeDesc": "Browse shops, cart, and orders.",
+    "merchant": "Merchant",
+    "merchantDesc": "Your shop, products, and order fulfillment.",
+    "runner": "Runner",
+    "runnerDesc": "Deliveries and OTP validation in your zone.",
+    "admin": "Admin",
+    "adminDesc": "Platform overview and demo tools.",
+    "buyerOnlyHint": "Need seller, runner, or admin access? Ask your administrator to update your role in the database."
   },
   "home": {
     "title": "Eastern Ethiopia’s trusted marketplace",
     "subtitle": "Shops, escrow, M-PESA, and a multilingual AI assistant — built for Harar, Dire Dawa, Haramaya, and Aweday.",
-    "ctaBrowse": "Browse products",
+    "ctaBrowse": "Browse shops",
     "ctaDemo": "4-actor demo",
     "ctaPitch": "Investor pitch"
   },
@@ -38,6 +59,29 @@
       "DDU": "Dire Dawa University",
       "Haramaya_Town": "Haramaya Town",
       "Haramaya_Campus": "Haramaya Main Campus"
+    }
+  },
+  "shops": {
+    "browseTitle": "Browse shops",
+    "browseSubtitle": "Choose your city or corridor, pick a shop you trust, then explore their shelves — the way buyers move through Eastern Ethiopia’s markets.",
+    "filterByArea": "Area",
+    "areaChipsLabel": "City & corridor",
+    "enterShop": "Enter shop",
+    "backToShops": "All shops",
+    "backToShelf": "Back to shop",
+    "moreFromShop": "More from this shop",
+    "productsInShop": "Products in this shop",
+    "noProductsYet": "This shop has no products listed yet.",
+    "noDescription": "Trusted seller on Misrak Shemeta.",
+    "emptyArea": "No shops in this area yet.",
+    "emptyAreaHint": "Try another city or pick “All areas”.",
+    "hub": {
+      "all": "All areas",
+      "Harar": "Harar",
+      "Haramaya": "Haramaya (Harar hub)",
+      "Aweday": "Aweday",
+      "Dire_Dawa": "Dire Dawa",
+      "Jigjiga": "Jigjiga"
     }
   },
   "products": {
@@ -71,12 +115,16 @@
     "signInToCheckout": "Sign in to checkout"
   },
   "checkout": {
-    "title": "Pay with M-PESA",
-    "testBanner": "Test Mode — No real money charged",
-    "phoneLabel": "M-PESA phone (Safaricom)",
-    "pay": "Pay with M-PESA",
-    "waiting": "Waiting for M-PESA confirmation…",
+    "title": "Pay with Chapa",
+    "testBanner": "Use Chapa test keys — follow Chapa test-mode rules",
+    "phoneLabel": "Phone (09… or 07…)",
+    "pay": "Continue to Chapa checkout",
+    "waiting": "Waiting for payment confirmation…",
     "etbToKes": "Total (ETB) → charged in KES (demo rate)",
+    "mpesaEtbNote": "Order total in ETB is sent to M-Pesa STK (Safaricom Ethiopia sandbox).",
+    "chapaNote": "You will complete payment on Chapa’s secure page (cards, Telebirr, M-Pesa, etc.). Amount is your cart total in ETB.",
+    "chapaWaiting": "Confirming payment with Chapa…",
+    "chapaFailed": "Payment was not completed. You can try again from your cart.",
     "orderSummary": "Order summary"
   },
   "orders": {
@@ -175,6 +223,7 @@
     "loading": "Loading…",
     "error": "Something went wrong",
     "retry": "Retry",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "skipToContent": "Skip to main content"
   }
 }

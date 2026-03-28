@@ -118,7 +118,7 @@ export function OrderDetail({
 function ButtonLink() {
   const { t } = useLocale();
   return (
-    <Link href="/products" className="text-sm font-semibold text-brand-600">
+    <Link href="/shops" className="text-sm font-semibold text-brand-600">
       ← {t("nav.browse")}
     </Link>
   );

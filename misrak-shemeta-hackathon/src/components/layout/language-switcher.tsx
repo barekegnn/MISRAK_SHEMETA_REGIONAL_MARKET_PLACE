@@ -15,9 +15,16 @@ const opts: { code: LanguageCode; label: string }[] = [
 
 export function LanguageSwitcher({ className }: { className?: string }) {
   const { user } = useAuth();
-  const { locale, setLocale } = useLocale();
+  const { locale, setLocale, t } = useLocale();
   return (
-    <div className={cn("inline-flex rounded-xl border border-brand-200 bg-white/90 p-1 shadow-sm", className)}>
+    <div
+      role="group"
+      aria-label={t("nav.language")}
+      className={cn(
+        "inline-flex rounded-xl border border-brand-200/90 bg-white/95 p-0.5 shadow-sm",
+        className
+      )}
+    >
       {opts.map((o) => (
         <Button
           key={o.code}

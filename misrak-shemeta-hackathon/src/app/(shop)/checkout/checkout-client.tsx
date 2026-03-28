@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -16,27 +16,28 @@ import {
 } from "@/app/actions/checkout";
 import { getCartPreview } from "@/app/actions/cart";
 import { formatEtb } from "@/lib/utils";
-import { ETB_TO_KES, type DeliveryZone } from "@/types";
+import type { DeliveryZone } from "@/types";
 import Link from "next/link";
 
 export function CheckoutClient({ zone }: { zone: DeliveryZone }) {
   const { t } = useLocale();
   const router = useRouter();
   const qc = useQueryClient();
-  const [phone, setPhone] = useState("254708374149");
+  const sp = useSearchParams();
+  const batchFromUrl = sp.get("batch");
+
+  const [phone, setPhone] = useState("0912345678");
   const [pending, setPending] = useState(false);
-  const [batchId, setBatchId] = useState<string | null>(null);
-  const [orderIds, setOrderIds] = useState<string[]>([]);
+  const [batchId, setBatchId] = useState<string | null>(batchFromUrl);
+
+  useEffect(() => {
+    if (batchFromUrl) setBatchId(batchFromUrl);
+  }, [batchFromUrl]);
 
   const { data: preview } = useQuery({
     queryKey: ["cart-preview", zone],
     queryFn: () => getCartPreview(zone),
   });
-
-  const kes =
-    preview?.total != null
-      ? Math.max(1, Math.ceil(preview.total * ETB_TO_KES))
-      : 0;
 
   async function pay() {
     setPending(true);
@@ -46,12 +47,13 @@ export function CheckoutClient({ zone }: { zone: DeliveryZone }) {
         alert(r.error);
         return;
       }
-      setBatchId(r.batchId);
-      setOrderIds(r.orderIds);
+      window.location.assign(r.checkoutUrl);
     } finally {
       setPending(false);
     }
   }
+
+  const activeBatch = batchId;
 
   return (
     <div className="mx-auto max-w-lg space-y-6">
@@ -74,12 +76,10 @@ export function CheckoutClient({ zone }: { zone: DeliveryZone }) {
           <span>{t("cart.total")}</span>
           <span>{formatEtb(preview?.total ?? 0)}</span>
         </div>
-        <p className="text-xs text-brand-600">
-          {t("checkout.etbToKes")}: ~{kes} KES
-        </p>
+        <p className="text-xs text-brand-600">{t("checkout.chapaNote")}</p>
       </Card>
 
-      {!batchId ? (
+      {!activeBatch ? (
         <>
           <div>
             <Label htmlFor="phone">{t("checkout.phoneLabel")}</Label>
@@ -88,6 +88,7 @@ export function CheckoutClient({ zone }: { zone: DeliveryZone }) {
               className="mt-1 rounded-xl"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
+              placeholder="09xxxxxxxx"
             />
           </div>
           <Button
@@ -105,12 +106,11 @@ export function CheckoutClient({ zone }: { zone: DeliveryZone }) {
         </>
       ) : (
         <BatchWait
-          batchId={batchId}
-          firstOrderId={orderIds[0]}
-          onPaid={async () => {
+          batchId={activeBatch}
+          onPaid={async (firstOrderId: string) => {
             await clearCartAfterSuccess();
             await qc.invalidateQueries({ queryKey: ["cart"] });
-            router.push(`/orders/${orderIds[0]}`);
+            router.replace(`/orders/${firstOrderId}`);
           }}
         />
       )}
@@ -120,12 +120,10 @@ export function CheckoutClient({ zone }: { zone: DeliveryZone }) {
 
 function BatchWait({
   batchId,
-  firstOrderId,
   onPaid,
 }: {
   batchId: string;
-  firstOrderId?: string;
-  onPaid: () => void;
+  onPaid: (firstOrderId: string) => void | Promise<void>;
 }) {
   const { t } = useLocale();
   const handled = useRef(false);
@@ -133,26 +131,26 @@ function BatchWait({
   onPaidRef.current = onPaid;
 
   const { data } = useQuery({
-    queryKey: ["mpesa-batch", batchId],
+    queryKey: ["chapa-batch", batchId],
     queryFn: () => getCheckoutBatchStatus(batchId),
     refetchInterval: (q) =>
       q.state.data?.allPaid || q.state.data?.anyFailed ? false : 2000,
   });
 
+  const firstOrderId = data?.orderIds[0];
+
   useEffect(() => {
-    if (!data?.allPaid || handled.current) return;
+    if (!data?.allPaid || handled.current || !firstOrderId) return;
     handled.current = true;
-    void Promise.resolve(onPaidRef.current());
-  }, [data?.allPaid]);
+    void Promise.resolve(onPaidRef.current(firstOrderId));
+  }, [data?.allPaid, firstOrderId]);
 
   return (
     <Card className="flex flex-col items-center gap-4 p-8 text-center">
       <Loader2 className="h-10 w-10 animate-spin text-brand-600" />
-      <p className="font-medium text-brand-900">{t("checkout.waiting")}</p>
+      <p className="font-medium text-brand-900">{t("checkout.chapaWaiting")}</p>
       {data?.anyFailed && (
-        <p className="text-sm text-red-600">
-          Payment failed — check M-PESA sandbox.
-        </p>
+        <p className="text-sm text-red-600">{t("checkout.chapaFailed")}</p>
       )}
       {firstOrderId && (
         <Button variant="secondary" asChild className="rounded-xl">

@@ -27,7 +27,7 @@ export function HomeHero({ initial }: { initial: PlatformStats }) {
           </p>
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Button asChild size="lg" className="rounded-2xl">
-              <Link href="/products">
+              <Link href="/shops">
                 {t("home.ctaBrowse")}
                 <ArrowRight className="h-4 w-4" />
               </Link>

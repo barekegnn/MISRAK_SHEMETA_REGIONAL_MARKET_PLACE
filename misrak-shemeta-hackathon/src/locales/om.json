@@ -3,14 +3,35 @@
   "nav": {
     "home": "Mana",
     "browse": "Galmaa",
+    "products": "Oomishaalee",
     "cart": "Gaarii",
     "orders": "Ajajaawwan",
-    "profile": "Ibsa namaa"
+    "profile": "Ibsa namaa",
+    "dashboards": "Daashboordii",
+    "mainNav": "Gamaaggama ijoo",
+    "language": "Afaan"
+  },
+  "dashboards": {
+    "title": "Daashboordii keessan",
+    "subtitle": "Gaheessummaa kee waliin wal simu bakka hojii bani.",
+    "signedInAs": "Seenan jirtu",
+    "roleLabel": "Gahee",
+    "signInPrompt": "Akkaawuntiin kee eeyyama gurgurtoota, ogeessaa fi bulchitaa yoo qabaate meeshaalee argachuuf seeni.",
+    "forbiddenToast": "Bakka sanatti seenuun hin danda'amuu.",
+    "shopHome": "Bitachuu fi bitadhu",
+    "shopHomeDesc": "Dukaanaawwan, gaarii fi ajajawwan.",
+    "merchant": "Daldalaa",
+    "merchantDesc": "Bustee kee, oomishaawwan fi ajaja xumuramu.",
+    "runner": "Geejjibaa",
+    "runnerDesc": "Geejjiba fi mirkaneessa OTP naannoo keessatti.",
+    "admin": "Bulchiinsa",
+    "adminDesc": "Platform irratti dagiinsa fi meeshaalee demo.",
+    "buyerOnlyHint": "Gahee gurgurtoota, ogeessaa ykn bulchitaa barbaaddaa? Bulchiinsaan kee akkaataa itti fayyadamaa teessoo deetaa keessatti haaressuu isaaniin gaafadhaa."
   },
   "home": {
     "title": "Bittaa Itoophiyaa bahaa amanamaa",
     "subtitle": "Busteeota, eskiroo, M-PESA, fi gargaarsa AI afaan baay’ee — Haaraar, Dirree Dhawaa, Haramayyaafi Awwadaayf.",
-    "ctaBrowse": "Oomishaalee ilaali",
+    "ctaBrowse": "Dukaanaawwan ilaali",
     "ctaDemo": "Demo 4-actor",
     "ctaPitch": "Wabiinwestootaaf"
   },
@@ -38,6 +59,29 @@
       "DDU": "Univarsiitii Dirree Dhawaa",
       "Haramaya_Town": "Magaalaa Haramayya",
       "Haramaya_Campus": "Kaampaasii ijoo Haramayya"
+    }
+  },
+  "shops": {
+    "browseTitle": "Dukaanaawwan ilaali",
+    "browseSubtitle": "Magaalaa kee filadhu, dukaana amanuu filadhu, sana booda oomishaalee isaa ilaali — akkuma gabaa bahaa Itoophiyaa.",
+    "filterByArea": "Godina",
+    "areaChipsLabel": "Magaalaa fi karaa",
+    "enterShop": "Dukaana seeni",
+    "backToShops": "Dukaanaawwan hunda",
+    "backToShelf": "Deebi'i dukaana",
+    "moreFromShop": "Dabalataa dukaana kana irraa",
+    "productsInShop": "Oomishaalee dukaana kana keessaa",
+    "noProductsYet": "Dukaanni kun oomishaa hin calallamin.",
+    "noDescription": "Gurgurtaa Misrak Shemeta irratti amanamaa.",
+    "emptyArea": "Godina kana keessatti dukaanni hin jiru.",
+    "emptyAreaHint": "Magaalaa biraa yaali ykn \"Godina hunda\" filadhu.",
+    "hub": {
+      "all": "Godina hunda",
+      "Harar": "Haaraar",
+      "Haramaya": "Haramayya (sagantaa Haaraar)",
+      "Aweday": "Awwadaay",
+      "Dire_Dawa": "Dirree Dhawaa",
+      "Jigjiga": "Jijjigaa"
     }
   },
   "products": {
@@ -71,12 +115,16 @@
     "signInToCheckout": "Kaffaltiif seeni"
   },
   "checkout": {
-    "title": "M-PESAan kaffali",
-    "testBanner": "Haala Qaama — kaffaltiin dhugaa miti",
-    "phoneLabel": "Bilbililaa M-PESA",
-    "pay": "M-PESA faydami",
+    "title": "Chapaan kaffali",
+    "testBanner": "Furtuuwwan Qaama Chapa — seera haala Qaamaatti hordofi",
+    "phoneLabel": "Bilbila (09… ykn 07…)",
+    "pay": "Gara kaffaltii Chapaatti adeemi",
     "waiting": "Mirkaneessaa M-PESA eegaa jira…",
     "etbToKes": "Walumaan (ETB) → KES keessatti",
+    "mpesaEtbNote": "Walumaan ajajaa ETB akkaataa kanaan gara M-Pesa STK (Safaricom Itoophiyaa sandbox) ergama.",
+    "chapaNote": "Kaffaltiin fuula nageenya Chapa irratti xummurama. Gatii gatii geejjibaa kee ETB irratti.",
+    "chapaWaiting": "Kaffaltiin Chapa waliin mirkanaa'aa jira…",
+    "chapaFailed": "Kaffaltiin hin xummuramin. Irra deebi'anii yaaluu dandeessu.",
     "orderSummary": "Cuunfaa ajajaa"
   },
   "orders": {
@@ -157,6 +205,7 @@
     "loading": "Fe'aa jira…",
     "error": "Dogoggorri",
     "retry": "Ammas yaali",
-    "signOut": "Ba'i"
+    "signOut": "Ba'i",
+    "skipToContent": "Qabiyyee ijoo irra caqi"
   }
 }

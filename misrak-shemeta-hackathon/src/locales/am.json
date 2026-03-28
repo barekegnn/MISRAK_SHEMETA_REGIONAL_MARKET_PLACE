@@ -3,14 +3,35 @@
   "nav": {
     "home": "መነሻ",
     "browse": "ካታሎግ",
+    "products": "ምርቶች",
     "cart": "ጋሪ",
     "orders": "ስርዝተኞች",
-    "profile": "መገለጫ"
+    "profile": "መገለጫ",
+    "dashboards": "ዳሽቦርዶች",
+    "mainNav": "ዋና ዝርዝር",
+    "language": "ቋንቋ"
+  },
+  "dashboards": {
+    "title": "ዳሽቦርዶችዎ",
+    "subtitle": "የእርስዎን ሚና የሚስማሙ የስራ ቦታዎችን ይክፈቱ።",
+    "signedInAs": "የገቡበት",
+    "roleLabel": "ሚና",
+    "signInPrompt": "መለያዎ ሻጭ፣ ሪነር ወይም አስተዳዳሪ ፍቃድ ቢኖረው የመሣሪያ አስተዳደር ያያሉ።",
+    "forbiddenToast": "ወደዚያ ክፍል መዳረሻ የለዎትም።",
+    "shopHome": "መሸጥ እና ግዢ",
+    "shopHomeDesc": "መደብሮች፣ ጋሪ እና ትዕዛዞች።",
+    "merchant": "ነኪር",
+    "merchantDesc": "የእርስዎ ሱቅ፣ እቃዎች እና ትዕዛዝ ማጠናቀቅ።",
+    "runner": "ሪነር",
+    "runnerDesc": "በአካባቢዎ ማድረስ እና OTP ማረጋገጫ።",
+    "admin": "አስተዳዳሪ",
+    "adminDesc": "የመድረክ ሰፊ እይታ እና የሙከራ መሳሪያዎች።",
+    "buyerOnlyHint": "የሻጭ፣ ሪነር ወይም አስተዳዳሪ መዳረሻ ይፈልጋሉ? አስተዳዳሪዎ ሚናዎን በውሂብ ጎብ የዘመን ማዘመን ያድርጉ።"
   },
   "home": {
     "title": "የምስራቅ ኢትዮጵያ የታመነ ገበያ",
     "subtitle": "መደብር፣ ኢስክሮ፣ ኤም-ፔሳ፣ እና ባለብዙ ቋንቋ AI አጋዥ — ለሐረር፣ ድሬዳዋ፣ ሐረማያ እና አወዳይ።",
-    "ctaBrowse": "ምርቶችን ይመልከቱ",
+    "ctaBrowse": "መደብሮችን ይመልከቱ",
     "ctaDemo": "4 ሚና ዲግሞ",
     "ctaPitch": "ለኢንቨስተሮች"
   },
@@ -38,6 +59,29 @@
       "DDU": "ድሬዳዋ ዩኒቨርሲቲ",
       "Haramaya_Town": "ከተማ ሐረማያ",
       "Haramaya_Campus": "ዋና ካምፐስ ሐረማያ"
+    }
+  },
+  "shops": {
+    "browseTitle": "መደብሮችን ይዘርፉ",
+    "browseSubtitle": "ከተማዎን ይምረጡ፣ የሚመርጡትን መደብር ይግቡ፣ ከዚያ ምርቶችን ይመልከቱ።",
+    "filterByArea": "ክልል",
+    "areaChipsLabel": "ከተማ እና መንገድ",
+    "enterShop": "መደብር ይግቡ",
+    "backToShops": "ሁሉም መደብሮች",
+    "backToShelf": "ወደ መደብር ተመለስ",
+    "moreFromShop": "ከዚህ መደብር ተጨማሪ",
+    "productsInShop": "በዚህ መደብር ያሉ ምርቶች",
+    "noProductsYet": "በዚህ መደብር ምርት የለም።",
+    "noDescription": "በሚስራክ ሸመታ የታመነ ሻጭ።",
+    "emptyArea": "በዚህ ክልል መደብር የለም።",
+    "emptyAreaHint": "ሌላ ከተማ ይሞክሩ ወይም «ሁሉም ክልሎች» ይምረጡ።",
+    "hub": {
+      "all": "ሁሉም ክልሎች",
+      "Harar": "ሐረር",
+      "Haramaya": "ሐረማያ (መሃል ሐረር)",
+      "Aweday": "አወዳይ",
+      "Dire_Dawa": "ድሬዳዋ",
+      "Jigjiga": "ጅግጅጋ"
     }
   },
   "products": {
@@ -71,12 +115,16 @@
     "signInToCheckout": "ለመክፈል ይግቡ"
   },
   "checkout": {
-    "title": "በኤም-ፔሳ ይክፈሉ",
-    "testBanner": "የሙከራ ሁኔታ — እርግጥ ካሳ የለም",
-    "phoneLabel": "ኤም-ፔሳ ስልክ",
-    "pay": "ኤም-ፔሳ ተጠቀም",
+    "title": "በቻፓ ይክፈሉ",
+    "testBanner": "የቻፓ የሙከራ ቁልፎች — የሙከራ ሁኔታ ህጎችን ይከተሉ",
+    "phoneLabel": "ስልክ (09… ወይም 07…)",
+    "pay": "ወደ ቻፓ ክፍያ ይሂዱ",
     "waiting": "የኤም-ፔሳ ማረጋገጫ በመጠባበቅ መካን…",
     "etbToKes": "ጠቅላላ (ብር) → በኬሻ ይከፈላል",
+    "mpesaEtbNote": "የትእዛዝ ጠቅላላው በብር ወደ ኤም-ፔሳ STK የሳፋሪኮም ኢትዮጵያ ሰንድቦክስ ይላካል።",
+    "chapaNote": "ክፍያው በቻፓ በሚመራ የደህንነት ገጽ ይጠናቀቃል። መጠን በብር የጋሪዎ ጠቅላላ ነው።",
+    "chapaWaiting": "ክፍያ ከቻፓ እየተረጋገጠ…",
+    "chapaFailed": "ክፍያ አልተጠናቀቀም። ከጋሪዎ እንደገና ለመሞከር ይችላሉ።",
     "orderSummary": "የትእዛዝ ማጠቃለያ"
   },
   "orders": {
@@ -157,6 +205,7 @@
     "loading": "በመጫን ላይ…",
     "error": "ስህተት ተፈጥሯል",
     "retry": "እንደገና ሞክር",
-    "signOut": "ውጣ"
+    "signOut": "ውጣ",
+    "skipToContent": "ወደ ዋና ይዘት ይዝለሉ"
   }
 }

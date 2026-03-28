@@ -1,11 +1,10 @@
 "use server";
 
-import { mpesaStkPush } from "@/lib/mpesa/client";
+import { chapaInitialize, normalizeChapaPhone } from "@/lib/chapa/client";
 import { calculateDeliveryFee } from "@/lib/logistics/pricing";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import type { CartItemRow, DeliveryZone, OrderItemRow, ShopCity } from "@/types";
-import { ETB_TO_KES } from "@/types";
 import { revalidatePath } from "next/cache";
 import { randomInt } from "crypto";
 
@@ -17,7 +16,7 @@ export async function initiateCheckout(params: {
   phone: string;
   deliveryZone: DeliveryZone;
 }): Promise<
-  | { ok: true; checkoutRequestId: string; batchId: string; orderIds: string[] }
+  | { ok: true; checkoutUrl: string; batchId: string; orderIds: string[] }
   | { ok: false; error: string }
 > {
   const supabase = await createServerSupabase();
@@ -26,9 +25,13 @@ export async function initiateCheckout(params: {
   } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "SIGN_IN_REQUIRED" };
 
+  const email =
+    user.email?.trim() ||
+    `buyer+${user.id.replace(/-/g, "").slice(0, 12)}@misrak-shemeta.local`;
+
   const { data: profile } = await supabase
     .from("users")
-    .select("delivery_zone")
+    .select("delivery_zone, full_name")
     .eq("id", user.id)
     .single();
 
@@ -135,49 +138,55 @@ export async function initiateCheckout(params: {
   }
 
   const grandTotal = grandSub + grandDel;
-  const kes = Math.max(1, Math.ceil(grandTotal * ETB_TO_KES));
+  const amountEtb = Math.max(1, Math.ceil(grandTotal));
+  const txRef = `msrm-${batchId}`;
+  const fullName = (profile?.full_name as string | null)?.trim() || "Customer";
+  const nameParts = fullName.split(/\s+/);
+  const firstName = nameParts[0] || "Customer";
+  const lastName = nameParts.slice(1).join(" ") || firstName;
+  const phoneNumber = normalizeChapaPhone(params.phone);
 
-  const stk = await mpesaStkPush({
-    phone: params.phone,
-    amountKes: kes,
-    accountReference: batchId.slice(0, 12),
-    transactionDesc: "Misrak Shemeta",
-  });
-
-  const checkoutId = stk.CheckoutRequestID;
-  const rc = stk.ResponseCode as string | number | undefined;
-  const okCode = String(rc ?? "") === "0" || rc === 0;
-  if (!checkoutId || !okCode) {
+  let init: Awaited<ReturnType<typeof chapaInitialize>>;
+  try {
+    init = await chapaInitialize({
+      amountEtb,
+      email,
+      firstName,
+      lastName,
+      phoneNumber,
+      txRef,
+      meta: { batch_id: batchId },
+    });
+  } catch (e) {
     for (const oid of orderIds) {
       await svc.from("orders").update({ status: "FAILED" }).eq("id", oid);
     }
+    const msg = e instanceof Error ? e.message : "Chapa initialize failed";
     await svc.from("payment_logs").insert({
       checkout_batch_id: batchId,
-      status: "STK_FAILED",
-      request: stk as unknown as Record<string, unknown>,
+      provider: "CHAPA",
+      status: "INIT_FAILED",
+      response: { error: msg } as Record<string, unknown>,
     });
-    return {
-      ok: false,
-      error: stk.errorMessage || stk.ResponseDescription || "STK_FAILED",
-    };
+    return { ok: false, error: msg };
   }
 
   await svc
     .from("orders")
-    .update({ mpesa_checkout_request_id: checkoutId })
+    .update({ mpesa_checkout_request_id: txRef })
     .eq("checkout_batch_id", batchId);
 
   await svc.from("payment_logs").insert({
     checkout_batch_id: batchId,
-    provider: "MPESA",
-    status: "STK_SENT",
-    request: stk as unknown as Record<string, unknown>,
+    provider: "CHAPA",
+    status: "INIT_OK",
+    request: init.raw,
   });
 
   revalidatePath("/checkout");
   revalidatePath("/orders");
 
-  return { ok: true, checkoutRequestId: checkoutId, batchId, orderIds };
+  return { ok: true, checkoutUrl: init.checkoutUrl, batchId, orderIds };
 }
 
 export async function clearCartAfterSuccess() {

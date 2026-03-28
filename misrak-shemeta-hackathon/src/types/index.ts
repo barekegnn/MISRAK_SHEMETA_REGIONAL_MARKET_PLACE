@@ -138,5 +138,3 @@ export interface AssistantResponse {
   shops: AssistantShopCard[];
 }
 
-/** Fixed demo rate Requirement 9.3.b */
-export const ETB_TO_KES = 0.65;

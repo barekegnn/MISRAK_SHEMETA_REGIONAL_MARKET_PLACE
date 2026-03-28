@@ -24,7 +24,12 @@ export default function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-lg space-y-6">
-      <h1 className="font-display text-3xl font-bold">{t("nav.profile")}</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="font-display text-3xl font-bold">{t("nav.profile")}</h1>
+        <Button asChild variant="secondary" className="rounded-xl">
+          <Link href="/dashboards">{t("nav.dashboards")}</Link>
+        </Button>
+      </div>
       <Card className="space-y-3 p-6">
         <p>
           <span className="text-sm text-brand-600">Email</span>

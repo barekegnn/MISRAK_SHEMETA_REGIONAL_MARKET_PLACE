@@ -19,7 +19,31 @@ function assertNoFatalSchemaError(error: { message?: string; code?: string } | n
   }
 }
 
+export type PublicShopListRow = {
+  id: string;
+  name: string;
+  city: ShopCity;
+  phone: string;
+  description: string | null;
+};
+
+export async function getPublicShops(filters?: { city?: ShopCity | "all" }) {
+  const supabase = await createServerSupabase();
+  let q = supabase
+    .from("shops")
+    .select("id, name, city, phone, description, created_at")
+    .eq("is_active", true);
+  if (filters?.city && filters.city !== "all") {
+    q = q.eq("city", filters.city);
+  }
+  const { data, error } = await q.order("name", { ascending: true });
+  assertNoFatalSchemaError(error);
+  if (error) throw new Error(error.message);
+  return (data ?? []) as PublicShopListRow[];
+}
+
 export async function getPublicProducts(filters?: {
+  shopId?: string;
   q?: string;
   city?: ShopCity | "all";
   category?: ProductCategory | "all";
@@ -37,6 +61,9 @@ export async function getPublicProducts(filters?: {
     )
     .eq("is_active", true);
 
+  if (filters?.shopId) {
+    q = q.eq("shop_id", filters.shopId);
+  }
   if (filters?.category && filters.category !== "all") {
     q = q.eq("category", filters.category);
   }
@@ -48,7 +75,7 @@ export async function getPublicProducts(filters?: {
   if (error) throw new Error(error.message);
 
   let rows = data ?? [];
-  if (filters?.city && filters.city !== "all") {
+  if (!filters?.shopId && filters?.city && filters.city !== "all") {
     rows = rows.filter((p) => {
       const s = p.shops as unknown;
       const one = Array.isArray(s) ? s[0] : s;

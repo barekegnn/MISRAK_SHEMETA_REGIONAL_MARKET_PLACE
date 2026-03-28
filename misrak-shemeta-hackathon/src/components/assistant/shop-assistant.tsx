@@ -92,23 +92,28 @@ export function ShopAssistant() {
       <Button
         type="button"
         size="lg"
-        className="fixed bottom-20 right-4 z-40 h-14 rounded-2xl px-4 shadow-xl shadow-brand-900/20 md:bottom-8"
+        className="fixed right-4 z-40 h-14 rounded-2xl px-4 shadow-xl shadow-brand-900/25 md:bottom-8 bottom-[calc(5.75rem+env(safe-area-inset-bottom))] motion-safe:transition-transform motion-safe:hover:scale-[1.02] motion-safe:active:scale-[0.98]"
         onClick={() => setOpen(true)}
         aria-label={t("assistant.title")}
+        aria-haspopup="dialog"
       >
-        <MessageCircle className="h-6 w-6" />
-        <span className="ml-1 hidden sm:inline">{t("assistant.title")}</span>
-        <span className="ml-2 rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-normal">
-          {t("assistant.badge")} 🤖
+        <MessageCircle className="h-6 w-6 shrink-0" />
+        <span className="ml-1 hidden max-w-[10rem] truncate sm:inline">
+          {t("assistant.title")}
+        </span>
+        <span className="ml-1.5 hidden shrink-0 rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-medium opacity-95 md:inline">
+          AI
         </span>
       </Button>
 
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent className="flex h-[88vh] flex-col p-0">
-          <SheetHeader className="border-b border-brand-100 px-4 py-3 text-left">
-            <SheetTitle className="font-display">{t("assistant.title")}</SheetTitle>
+        <SheetContent className="flex h-[90dvh] max-h-[90dvh] flex-col p-0 md:h-full md:max-h-none">
+          <SheetHeader className="border-b border-brand-100 bg-brand-50/40 px-4 py-3.5 text-left">
+            <SheetTitle className="font-display text-lg text-brand-950">
+              {t("assistant.title")}
+            </SheetTitle>
           </SheetHeader>
-          <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
+          <div className="flex-1 space-y-4 overflow-y-auto overscroll-contain px-4 py-4">
             {turns.map((m, i) => (
               <motion.div
                 key={i}

@@ -32,7 +32,16 @@ export type ProductCardData = {
   } | null;
 };
 
-export function ProductCard({ product, index }: { product: ProductCardData; index: number }) {
+export function ProductCard({
+  product,
+  index,
+  showShopLine = true,
+}: {
+  product: ProductCardData;
+  index: number;
+  /** When false, hides shop name line (e.g. on shop shelf page). */
+  showShopLine?: boolean;
+}) {
   const { t } = useLocale();
   const { user } = useAuth();
   const qc = useQueryClient();
@@ -93,7 +102,11 @@ export function ProductCard({ product, index }: { product: ProductCardData; inde
                 {product.name}
               </h3>
             </Link>
-            <p className="text-xs text-brand-600">{shop?.name} · {shop?.city}</p>
+            {showShopLine && (
+              <p className="text-xs text-brand-600">
+                {shop?.name} · {shop?.city}
+              </p>
+            )}
           </div>
           <p className="line-clamp-2 text-sm text-brand-700/90">{product.description}</p>
           <div className="mt-auto flex items-center justify-between gap-2">

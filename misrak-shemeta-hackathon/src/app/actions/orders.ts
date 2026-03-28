@@ -230,6 +230,15 @@ export async function listRunnerOrders(): Promise<RunnerOrderRow[]> {
   } = await supabase.auth.getUser();
   if (!user) return [];
 
+  const { data: runnerUser } = await supabase
+    .from("users")
+    .select("role, delivery_zone")
+    .eq("id", user.id)
+    .single();
+  if (runnerUser?.role !== "runner") return [];
+  const myZone = runnerUser.delivery_zone as string | undefined;
+  if (!myZone) return [];
+
   const { data: orders } = await supabase
     .from("orders")
     .select("id, items, otp_attempts, status, buyer_id, shops ( name, phone )")
@@ -246,14 +255,6 @@ export async function listRunnerOrders(): Promise<RunnerOrderRow[]> {
   const zoneByBuyer = new Map(
     buyers?.map((b) => [b.id, b.delivery_zone as string]) ?? []
   );
-
-  const { data: me } = await supabase
-    .from("users")
-    .select("delivery_zone")
-    .eq("id", user.id)
-    .single();
-  const myZone = me?.delivery_zone as string | undefined;
-  if (!myZone) return [];
 
   return orders
     .filter((o) => zoneByBuyer.get(o.buyer_id as string) === myZone)

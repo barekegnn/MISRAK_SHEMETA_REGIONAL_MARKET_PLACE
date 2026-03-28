@@ -53,7 +53,7 @@ export function CartView({ zone }: { zone: DeliveryZone }) {
         {t("cart.empty")}
         <div className="mt-4">
           <Button asChild variant="secondary" className="rounded-xl">
-            <Link href="/products">{t("nav.browse")}</Link>
+            <Link href="/shops">{t("nav.browse")}</Link>
           </Button>
         </div>
       </Card>

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { CheckoutClient } from "./checkout-client";
 import type { DeliveryZone } from "@/types";
@@ -14,5 +15,9 @@ export default async function CheckoutPage() {
       .maybeSingle();
     if (u?.delivery_zone) zone = u.delivery_zone as DeliveryZone;
   }
-  return <CheckoutClient zone={zone} />;
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-brand-600">Loading…</div>}>
+      <CheckoutClient zone={zone} />
+    </Suspense>
+  );
 }

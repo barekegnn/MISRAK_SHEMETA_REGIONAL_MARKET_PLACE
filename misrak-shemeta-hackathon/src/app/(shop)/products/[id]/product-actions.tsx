@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import type { DeliveryZone, ShopCity } from "@/types";
 import { calculateDeliveryFee } from "@/lib/logistics/pricing";
 import Link from "next/link";
+import { BrowseTrail } from "@/components/navigation/browse-trail";
 
 type P = {
   id: string;
@@ -70,7 +71,45 @@ export function ProductDetailClient({
   }
 
   return (
-    <div className="grid gap-8 lg:grid-cols-2">
+    <div className="space-y-8">
+      <div className="flex flex-col gap-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          asChild
+          className="w-fit gap-1 rounded-xl text-brand-700 hover:bg-brand-50 md:hidden"
+        >
+          <Link href={shop ? `/shops/${shop.id}` : "/shops"}>
+            <ChevronLeft className="h-4 w-4" />
+            {shop ? t("shops.backToShelf") : t("shops.backToShops")}
+          </Link>
+        </Button>
+        {shop && (
+          <>
+            <BrowseTrail
+              variant="premium"
+              className="hidden md:block"
+              items={[
+                { href: "/", label: t("nav.home") },
+                { href: "/shops", label: t("shops.browseTitle") },
+                { href: `/shops/${shop.id}`, label: shop.name },
+                { label: product.name, current: true },
+              ]}
+            />
+            <BrowseTrail
+              variant="standard"
+              className="md:hidden"
+              items={[
+                { href: "/shops", label: t("shops.browseTitle") },
+                { href: `/shops/${shop.id}`, label: shop.name },
+                { label: product.name, current: true },
+              ]}
+            />
+          </>
+        )}
+      </div>
+
+      <div className="grid gap-8 lg:grid-cols-2">
       <div className="space-y-3">
         <div className="relative aspect-square overflow-hidden rounded-3xl border border-brand-100 bg-brand-50 shadow-lg">
           <Image
@@ -156,10 +195,11 @@ export function ProductDetailClient({
               <p className="mt-2 text-sm text-brand-700">{shop.description}</p>
             )}
             <Button asChild variant="secondary" className="mt-4 rounded-xl">
-              <Link href="/products">{t("nav.browse")}</Link>
+              <Link href={`/shops/${shop.id}`}>{t("shops.moreFromShop")}</Link>
             </Button>
           </div>
         )}
+      </div>
       </div>
     </div>
   );
